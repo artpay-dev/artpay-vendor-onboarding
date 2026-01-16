@@ -6,10 +6,10 @@ export default function Home() {
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="text-center space-y-6">
         <h1 className="font-heading text-5xl font-medium">
-          Benvenuto su Artpay
+          Benvenuto su artpay
         </h1>
         <p className="text-muted-foreground text-lg">
-          Unisciti al nostro marketplace e inizia a vendere le tue opere oggi stesso
+          Unisciti al nostro marketplace e inizia a vendere le tue opere, a rate,  oggi stesso.
         </p>
         <div className="pt-4">
           <Link href="/register">
