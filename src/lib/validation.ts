@@ -6,15 +6,17 @@ export const registrationSchema = z.object({
     .string()
     .min(3, "Il nome utente deve essere almeno di 3 caratteri")
     .max(60, "Il nome utente non può superare i 60 caratteri")
-    .regex(
-      /^[a-z0-9-]+$/,
-      "Il nome utente può contenere solo lettere minuscole, numeri e trattini"
+    .trim()
+    .transform((val) =>
+      val
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9-]/g, "")
+        .replace(/--+/g, "-")
+        .replace(/^-+|-+$/g, "")
     )
-    .refine((val) => !val.startsWith("-") && !val.endsWith("-"), {
-      message: "Il nome utente non può iniziare o terminare con un trattino",
-    })
-    .refine((val) => !val.includes("--"), {
-      message: "Il nome utente non può contenere trattini consecutivi",
+    .refine((val) => val.length >= 3, {
+      message: "Il nome utente deve essere almeno di 3 caratteri dopo la trasformazione",
     }),
 
   first_name: z
