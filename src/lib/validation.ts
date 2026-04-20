@@ -104,3 +104,45 @@ export const registrationSchema = z.object({
 });
 
 export type RegistrationFormData = z.infer<typeof registrationSchema>;
+
+// =====================================================
+// NUOVO SCHEMA: Onboarding Step 1 (Basic Registration)
+// =====================================================
+export const basicOnboardingSchema = z.object({
+  email: z
+    .string()
+    .email("Indirizzo email non valido")
+    .trim()
+    .transform((val) => val.toLowerCase()),
+
+  password: z
+    .string()
+    .min(6, "La password deve essere di almeno 6 caratteri")
+    .max(100, "La password non può superare i 100 caratteri"),
+
+  first_name: z
+    .string()
+    .min(2, "Il nome è obbligatorio")
+    .max(50, "Il nome non può superare i 50 caratteri")
+    .trim(),
+
+  last_name: z
+    .string()
+    .min(2, "Il cognome è obbligatorio")
+    .max(50, "Il cognome non può superare i 50 caratteri")
+    .trim(),
+
+  business_name: z
+    .string()
+    .min(2, "Il nome della galleria/attività è obbligatorio")
+    .max(100, "Il nome non può superare i 100 caratteri")
+    .trim(),
+
+  terms_accepted: z
+    .boolean()
+    .refine((val) => val === true, {
+      message: "Devi accettare i termini e le condizioni",
+    }),
+});
+
+export type BasicOnboardingData = z.infer<typeof basicOnboardingSchema>;
