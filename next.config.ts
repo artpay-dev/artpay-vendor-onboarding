@@ -2,10 +2,18 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
+
+  // Escludi docusign-esign dal bundle (server-side only)
   serverExternalPackages: ['docusign-esign'],
-  // Disable Turbopack for production builds (use Webpack instead)
-  // This is needed because docusign-esign uses AMD modules not supported by Turbopack
-  ...(process.env.NODE_ENV === 'production' && { turbo: undefined }),
+
+  // Webpack configuration per escludere docusign in edge runtime
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals = config.externals || [];
+      config.externals.push('docusign-esign');
+    }
+    return config;
+  },
 };
 
 export default nextConfig;
