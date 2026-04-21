@@ -9,6 +9,10 @@ import { apiSuccess, apiError, getSessionToken } from '@/lib/api-utils';
 import { createVendorContractEnvelope, getEmbeddedSigningUrl } from '@/lib/docusign';
 import type { GetContractLinkResponse } from '@/types/supabase';
 
+// Force Node.js runtime (docusign-esign non funziona con Edge)
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }

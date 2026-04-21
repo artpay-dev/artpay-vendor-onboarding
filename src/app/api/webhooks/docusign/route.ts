@@ -217,3 +217,4 @@ async function parseDocuSignXML(xmlString: string) {
 
 // Permetti POST da DocuSign senza CSRF protection
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs'; // Force Node.js runtime (docusign-esign non funziona con Edge)
