@@ -1,13 +1,13 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { CreditCard, Loader2, AlertCircle } from "lucide-react";
 
-function StripeConnectPageContent() {
+export default function StripeConnectPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [onboardingId, setOnboardingId] = useState<string | null>(null);
   const router = useRouter();
@@ -199,17 +199,5 @@ function StripeConnectPageContent() {
         </CardContent>
       </Card>
     </div>
-  );
-}
-
-export default function StripeConnectPage() {
-  return (
-    <Suspense fallback={
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    }>
-      <StripeConnectPageContent />
-    </Suspense>
   );
 }

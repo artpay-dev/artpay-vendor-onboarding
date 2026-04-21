@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -79,7 +79,7 @@ function ChecklistItems({ seconds }: { seconds: number }) {
   );
 }
 
-function PendingApprovalPageContent() {
+export default function PendingApprovalPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -301,17 +301,5 @@ function PendingApprovalPageContent() {
         </CardContent>
       </Card>
     </div>
-  );
-}
-
-export default function PendingApprovalPage() {
-  return (
-    <Suspense fallback={
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    }>
-      <PendingApprovalPageContent />
-    </Suspense>
   );
 }
