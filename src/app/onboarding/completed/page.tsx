@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, ExternalLink, Loader2 } from "lucide-react";
 
-export default function CompletedPage() {
+function CompletedPageContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [businessName, setBusinessName] = useState<string>("");
   const router = useRouter();
@@ -64,7 +64,7 @@ export default function CompletedPage() {
       setBusinessName("Vendor");
       setIsLoading(false);
     }
-  }, [router]);
+  }, [router, searchParams]);
 
   if (isLoading) {
     return (
@@ -163,5 +163,17 @@ export default function CompletedPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function CompletedPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    }>
+      <CompletedPageContent />
+    </Suspense>
   );
 }
