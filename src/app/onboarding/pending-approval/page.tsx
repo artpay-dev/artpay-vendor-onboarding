@@ -139,7 +139,7 @@ function PendingApprovalPageContent() {
 
         setTimeout(() => {
           router.push(data.next_url || "/onboarding/stripe-connect");
-        }, 1500);
+        }, 5000);
       } else if (data.status === "rejected") {
         toast.error("Richiesta rifiutata", {
           description: "La tua richiesta di onboarding è stata rifiutata",
