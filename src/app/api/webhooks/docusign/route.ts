@@ -42,6 +42,12 @@ export async function POST(request: NextRequest) {
 
     // Gestisci gli eventi in base allo status
     if (status === 'completed') {
+      // Se già processato (es. dal sync endpoint), non fare nulla
+      if (onboarding.status !== 'contract_pending') {
+        console.log(`Webhook: onboarding ${onboarding.id} already processed (status: ${onboarding.status}), skipping`);
+        return apiSuccess({ message: 'Already processed' });
+      }
+
       // Contratto firmato!
       try {
         console.log(`Contract signed for onboarding ${onboarding.id} - Starting vendor creation...`);

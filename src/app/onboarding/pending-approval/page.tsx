@@ -157,6 +157,26 @@ function PendingApprovalPageContent() {
     }
   };
 
+  const syncContractStatus = async () => {
+    const sessionToken = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("session_token="))
+      ?.split("=")[1];
+    const onboardingId =
+      sessionStorage.getItem("onboarding_id") || searchParams.get("onboarding_id");
+
+    if (!sessionToken || !onboardingId) return;
+
+    try {
+      await fetch(`/api/onboarding/${onboardingId}/contract/sync`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${sessionToken}` },
+      });
+    } catch (error) {
+      console.error("Contract sync error:", error);
+    }
+  };
+
   useEffect(() => {
     let isMounted = true;
     let pollCount = 0;
@@ -181,12 +201,19 @@ function PendingApprovalPageContent() {
       setTimeout(poll, delay);
     };
 
-    // Initial fetch
-    fetchStatus().finally(() => {
+    const fromDocusign = searchParams.get("from") === "docusign";
+
+    // Se torniamo da DocuSign, sincronizza attivamente lo stato prima di iniziare il polling
+    const init = async () => {
+      if (fromDocusign) {
+        await syncContractStatus();
+      }
+      await fetchStatus();
       setIsLoading(false);
-      // Start polling after initial fetch
       setTimeout(poll, 2000);
-    });
+    };
+
+    init();
 
     return () => {
       isMounted = false;
