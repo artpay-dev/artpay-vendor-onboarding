@@ -4,13 +4,56 @@ import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, ExternalLink, Loader2 } from "lucide-react";
+import { CheckCircle, ExternalLink, Loader2, LogIn } from "lucide-react";
 
 function CompletedPageContent() {
   const [isLoading, setIsLoading] = useState(true);
+  const [isSsoLoading, setIsSsoLoading] = useState(false);
   const [businessName, setBusinessName] = useState<string>("");
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  const handleDashboardRedirect = async () => {
+    const dashboardUrl = process.env.NEXT_PUBLIC_DASHBOARD_URL;
+
+    if (!dashboardUrl) {
+      window.location.href = `${process.env.NEXT_PUBLIC_ARTPAY_SERVER_URL}/wp-login.php`;
+      return;
+    }
+
+    const vendorAuth = sessionStorage.getItem("vendor_auth");
+    if (!vendorAuth) {
+      window.location.href = dashboardUrl;
+      return;
+    }
+
+    setIsSsoLoading(true);
+    try {
+      const decoded = atob(vendorAuth);
+      const colonIdx = decoded.indexOf(":");
+      const username = decoded.slice(0, colonIdx);
+      const password = decoded.slice(colonIdx + 1);
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_ARTPAY_SERVER_URL}/wp-json/artpay-sso/v1/generate-token`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password }),
+        }
+      );
+
+      if (!res.ok) throw new Error("SSO failed");
+
+      const { token } = await res.json();
+      sessionStorage.removeItem("vendor_auth");
+      window.location.href = `${dashboardUrl}?token=${token}`;
+    } catch {
+      window.location.href = dashboardUrl;
+    } finally {
+      setIsSsoLoading(false);
+    }
+  };
 
   useEffect(() => {
     // Verifica che l'onboarding sia effettivamente completato
@@ -144,11 +187,13 @@ function CompletedPageContent() {
           </div>
 
           <div className="flex gap-3 pt-4">
-            <Button asChild className="flex-1">
-              <a href={`${process.env.NEXT_PUBLIC_ARTPAY_SERVER_URL}/wp-login.php` || ""}>
-                <ExternalLink className="mr-2 h-4 w-4" />
-                Vai al Dashboard
-              </a>
+            <Button className="flex-1" onClick={handleDashboardRedirect} disabled={isSsoLoading}>
+              {isSsoLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <LogIn className="mr-2 h-4 w-4" />
+              )}
+              {isSsoLoading ? "Accesso in corso..." : "Vai al Dashboard"}
             </Button>
             <Button variant="outline" asChild className="flex-1 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
               <a href={`${process.env.NEXT_PUBLIC_ARTPAY_SERVER_URL}/wp-admin/admin.php?page=vendor-profile`}>
