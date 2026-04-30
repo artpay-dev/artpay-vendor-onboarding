@@ -68,8 +68,19 @@ export function MultiStepForm() {
     setIsSubmitting(true);
     const data = form.getValues();
 
+    // Trasforma login in formato corretto
+    data.login = data.login
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "")
+      .replace(/--+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
     // Imposta nice_name uguale a login automaticamente
     data.nice_name = data.login;
+
+    console.log("Sending registration with login:", data.login);
 
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_ARTPAY_SERVER_URL}/wp-json/mvx/v1/vendors`, {
@@ -88,12 +99,31 @@ export function MultiStepForm() {
       const result = await response.json();
       console.log("Registration successful:", result);
 
-      // Mostra toast di successo
+      // Se ha scelto Stripe, salva username/password e redirect
+      if (data.payment.payment_mode === "stripe") {
+        // Salva username e password in sessionStorage per il login
+        // Nota: utilizzeremo username:password per Basic Auth, non consumer_key/secret
+        sessionStorage.setItem("vendor_auth", btoa(`${data.login}:${data.password}`));
+
+        // Toast unico per Stripe
+        toast.success("Registrazione completata!", {
+          description: "Reindirizzamento a Stripe Connect per configurare i pagamenti...",
+        });
+
+        // Redirect a stripe-connect dopo un breve delay
+        setTimeout(() => {
+          window.location.href = "/stripe-connect";
+        }, 1500);
+
+        return;
+      }
+
+      // Toast per altri metodi di pagamento
       toast.success("Registrazione inviata!", {
         description: "La tua richiesta è stata elaborata con successo.",
       });
 
-      // Mostra la card di successo
+      // Mostra la card di successo per gli altri metodi di pagamento
       setIsSuccess(true);
     } catch (error) {
       console.error("Registration error:", error);

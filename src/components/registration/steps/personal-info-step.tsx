@@ -25,10 +25,24 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
           <FormItem>
             <FormLabel>Nome utente</FormLabel>
             <FormControl>
-              <Input placeholder="es. galleria-arte" {...field} />
+              <Input
+                placeholder="es. galleria-arte"
+                {...field}
+                onBlur={(e) => {
+                  const transformed = e.target.value
+                    .trim()
+                    .toLowerCase()
+                    .replace(/\s+/g, "-")
+                    .replace(/[^a-z0-9-]/g, "")
+                    .replace(/--+/g, "-")
+                    .replace(/^-+|-+$/g, "");
+                  field.onChange(transformed);
+                  field.onBlur();
+                }}
+              />
             </FormControl>
             <p className="text-sm text-muted-foreground">
-              Sarà usato nell&apos;URL della tua galleria. Usa solo lettere minuscole, numeri e trattini.
+              Sarà usato nell&apos;URL della tua galleria. Spazi e caratteri speciali verranno convertiti automaticamente.
             </p>
             <FormMessage />
           </FormItem>
