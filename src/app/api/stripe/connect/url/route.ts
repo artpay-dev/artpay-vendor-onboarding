@@ -67,10 +67,14 @@ export async function POST(request: NextRequest) {
     let stripeAccountId = onboardingData.stripe_account_id;
 
     if (!stripeAccountId) {
+      const meta = onboardingData.metadata || {};
       console.log('Creating new Stripe Connected Account...');
       stripeAccountId = await createConnectedAccount({
         email: onboardingData.email,
         businessName: onboardingData.business_name,
+        ragioneSociale: meta.ragione_sociale,
+        partitaIva: meta.partita_iva,
+        indirizzo: meta.indirizzo,
         country: 'IT',
       });
 

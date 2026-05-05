@@ -42,6 +42,10 @@ export async function POST(request: NextRequest) {
       'first_name',
       'last_name',
       'business_name',
+      'ragione_sociale',
+      'partita_iva',
+      'indirizzo',
+      'iban',
       'terms_accepted',
     ]);
 
@@ -57,6 +61,10 @@ export async function POST(request: NextRequest) {
       first_name,
       last_name,
       business_name,
+      ragione_sociale,
+      partita_iva,
+      indirizzo,
+      iban,
       terms_accepted,
     } = body as StartOnboardingRequest;
 
@@ -130,7 +138,12 @@ export async function POST(request: NextRequest) {
         last_step_completed: 'registration',
         session_token: sessionToken,
         session_expires_at: sessionExpiresAt.toISOString(),
-        metadata: {},
+        metadata: {
+          ragione_sociale: ragione_sociale.trim(),
+          partita_iva: partita_iva.trim().replace(/\s/g, '').toUpperCase(),
+          indirizzo: indirizzo.trim(),
+          iban: iban.trim().replace(/\s/g, '').toUpperCase(),
+        },
       })
       .select()
       .single();

@@ -28,6 +28,10 @@ export interface CreateEnvelopeParams {
   signerEmail: string;
   signerName: string;
   businessName: string;
+  ragioneSociale: string;
+  partitaIva: string;
+  indirizzo: string;
+  iban: string;
   onboardingId: string;
   returnUrl: string;
 }
@@ -99,110 +103,180 @@ async function authenticateWithJWT() {
   }
 }
 
-/**
- * Genera un PDF semplice del contratto
- * Nota: In produzione usa un template DocuSign o un PDF vero
- */
 function generateContractHTML(params: {
   signerName: string;
   businessName: string;
+  ragioneSociale: string;
+  partitaIva: string;
+  indirizzo: string;
+  iban: string;
   signerEmail: string;
 }) {
+  const today = new Date().toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' });
+
   return `
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
   <style>
-    body { font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; }
-    h1 { text-align: center; color: #333; }
-    h2 { color: #555; margin-top: 30px; }
-    .section { margin: 20px 0; line-height: 1.6; }
-    .highlight { background-color: #fff3cd; padding: 10px; border-left: 4px solid #ffc107; }
-    .signature-area { margin-top: 80px; }
-    .signature-line { border-top: 2px solid #000; width: 300px; margin-top: 100px; }
+    body { font-family: Arial, sans-serif; font-size: 11pt; padding: 60px; max-width: 800px; margin: 0 auto; line-height: 1.5; color: #111; }
+    .header-logo { font-weight: bold; font-size: 18pt; letter-spacing: 2px; margin-bottom: 30px; }
+    .recipient { margin-bottom: 20px; }
+    .meta { margin-bottom: 30px; }
+    .subject { font-weight: bold; margin-bottom: 20px; }
+    p { margin: 10px 0; }
+    ol { margin: 10px 0; padding-left: 20px; }
+    ol li { margin-bottom: 8px; }
+    ul { margin: 6px 0; padding-left: 20px; }
+    ul li { margin-bottom: 4px; }
+    .highlight-box { border: 1px solid #ccc; padding: 12px 16px; margin: 10px 0; background: #f9f9f9; }
+    .signature-section { margin-top: 60px; }
+    .signature-block { display: inline-block; width: 45%; vertical-align: top; }
+    .signature-line { border-top: 1px solid #000; margin-top: 60px; padding-top: 4px; font-size: 9pt; }
+    .footer { margin-top: 40px; font-size: 8pt; color: #555; border-top: 1px solid #ccc; padding-top: 8px; }
   </style>
 </head>
 <body>
-  <h1>CONTRATTO VENDOR ARTPAY</h1>
 
-  <div class="section">
-    <strong>Data:</strong> ${new Date().toLocaleDateString('it-IT')}
+  <div class="header-logo">artpay</div>
+
+  <div class="recipient">
+    Spett.le<br/>
+    <strong>${params.ragioneSociale}</strong><br/>
+    ${params.indirizzo}
   </div>
 
-  <div class="section">
-    <h2>PARTI</h2>
-    <p><strong>Tra:</strong></p>
-    <ul>
-      <li><strong>ArtPay</strong> - Piattaforma di e-commerce per opere d'arte</li>
-      <li><strong>${params.businessName}</strong> - ${params.signerName} (${params.signerEmail})</li>
-    </ul>
+  <div class="meta">
+    A mezzo posta elettronica<br/>
+    Cagliari, ${today}
   </div>
 
-  <div class="section">
-    <h2>OGGETTO</h2>
-    <p>
-      Il presente contratto disciplina i termini e le condizioni per la vendita di opere d'arte
-      sulla piattaforma ArtPay da parte del Vendor.
-    </p>
-  </div>
+  <div class="subject">Oggetto: Accordo di Collaborazione Commerciale</div>
 
-  <div class="section">
-    <h2>COMMISSIONI</h2>
-    <div class="highlight">
+  <p>Egregi Signori, facendo seguito alle conversazioni intercorse e premesso che:</p>
+
+  <p>(a) la scrivente <strong>Artpay S.r.l.</strong>, con sede legale in Cagliari, Via Carloforte 60, C.F. e P.IVA 04065160923 (<strong>"Artpay"</strong>) è titolare del sito internet www.artpay.art e www.gallerie.artpay.art (il <strong>"Sito"</strong>);</p>
+
+  <p>(b) il Sito è dedicato a gallerie che vogliono facilitare la vendita diretta delle proprie opere d'arte, rivolgendosi a un vasto pubblico di collezionisti e consentendo a tutti gli interessati di avvalersi di soluzioni di pagamento rateale e dilazionato, ivi incluso il Buy Now Pay Later (BNPL), nonché di altre soluzioni di finanziamento offerte o reclamizzate sul Sito da istituzioni finanziarie e operatori di pagamento partner di Artpay (i <strong>"Finanziatori"</strong>);</p>
+
+  <p>(c) la Vostra galleria <strong>${params.businessName}</strong>, con sede in <strong>${params.indirizzo}</strong>, C.F. e P.IVA <strong>${params.partitaIva}</strong>, IBAN <strong>${params.iban}</strong> (la <strong>"Galleria"</strong>), ha manifestato interesse all'iniziativa;</p>
+
+  <p>(d) la Galleria ha dichiarato che non sussistono condizioni di incompatibilità ai sensi di disposizioni di legge e contrattuali alla sottoscrizione del presente accordo di collaborazione commerciale (l'<strong>"Accordo Commerciale"</strong>);</p>
+
+  <p>tutto ciò premesso, Artpay e la Galleria (congiuntamente le <strong>"Parti"</strong> e ciascuna anche una <strong>"Parte"</strong>) convengono quanto segue.</p>
+
+  <ol>
+    <li>
+      <strong>Oggetto:</strong> Con la sottoscrizione del presente Accordo Commerciale, Artpay concede alla Galleria, che accetta, il diritto di utilizzare il Servizio per un massimo di 100 (cento) opere d'arte, intendendosi per <strong>"Servizio"</strong> la gestione, la promozione e la vendita delle medesime attraverso il Sito, ivi incluso il servizio artpay FAST (il <strong>"Servizio"</strong>). Ulteriori termini e condizioni del Servizio sono indicati nei termini e condizioni generali "Gallerie e clienti professionali" (le <strong>"GTC"</strong>) e negli altri correlati documenti presenti sul Sito che, insieme al presente Accordo Commerciale, rappresentano l'unica fonte contrattuale tra Artpay e la Galleria e prevalgono su eventuali diversi termini e condizioni commerciali e contrattuali contenuti su documenti di provenienza della Galleria.
+    </li>
+
+    <li>
+      <strong>Natura dell'Accordo Commerciale:</strong> Con riferimento agli scopi dell'Accordo Commerciale, nessuna delle Parti potrà essere considerata, per alcun motivo né ad alcun titolo, agente, socia, succursale o dipendenza dell'altra.
+    </li>
+
+    <li>
+      <strong>Risultati economici:</strong> Artpay informa la Galleria che il Sito è meramente un veicolo di accesso al Servizio per la promozione e vendita di opere d'arte e non può garantire che il Servizio apporti in ogni caso benefici economici alla Galleria.
+    </li>
+
+    <li>
+      <strong>Modalità operative della collaborazione:</strong> Le opere d'arte della Galleria gestite tramite il Servizio potranno essere acquistate dagli utenti con le seguenti modalità:
       <ul>
-        <li><strong>Primi 6 mesi:</strong> 6% su ogni vendita</li>
-        <li><strong>Dopo 6 mesi:</strong> 12% su ogni vendita</li>
+        <li><strong>Acquisto immediato:</strong> cliccando sul box "Completa l'acquisto dell'opera", l'utente potrà pagare il prezzo dell'opera tramite bonifico bancario, carte di credito o debito autorizzate, wallet digitali (es. Apple Pay, Google Pay) o altri sistemi di pagamento digitale previsti sul Sito;</li>
+        <li><strong>Acquisto rateale tramite Buy Now Pay Later (BNPL):</strong> cliccando sul box "Paga a rate" o equivalente, l'utente potrà accedere alle soluzioni di pagamento rateale offerte dai Finanziatori partner di Artpay. Le condizioni economiche e contrattuali del piano rateale sono definite esclusivamente dal Finanziatore prescelto dall'utente e non coinvolgono Artpay né la Galleria;</li>
+        <li><strong>Prenotazione con accesso al credito:</strong> cliccando sul box "Prenota l'opera", l'utente potrà verificare le condizioni del prestito al consumo offerto dai Finanziatori e, contestualmente, bloccare l'opera garantendosi un'esclusiva di 7 (sette) giorni. La prenotazione implica il blocco della carta di credito dell'utente per il 5% (cinque per cento) del valore dell'opera a garanzia della serietà degli intenti.</li>
       </ul>
-    </div>
-    <p>
-      Le commissioni saranno trattenute automaticamente al momento del pagamento del cliente.
-    </p>
+      Al fine di evitare sovrapposizioni tra potenziali acquirenti, la Galleria si impegna a non offrire in vendita, vendere e/o accettare prenotazioni o offerte da terzi — tramite qualsiasi canale — aventi ad oggetto le opere d'arte gestite tramite il Servizio e prenotate dagli utenti, per la durata di 7 (sette) giorni dalla data di prenotazione sul Sito.
+    </li>
+
+    <li>
+      <strong>Garanzie:</strong> Le opere d'arte dovranno essere accompagnate dalla necessaria documentazione attestante l'autenticità o almeno la probabile attribuzione e la provenienza dell'opera. La Galleria si impegna a gestire tramite il Servizio esclusivamente opere d'arte autentiche, di provenienza legittima, delle quali abbia il diritto di disporre e/o l'autorizzazione alla vendita. La Galleria si impegna a manlevare e tenere indenne Artpay da ogni perdita, danno o responsabilità derivante dalla violazione del presente articolo.
+    </li>
+
+    <li>
+      <strong>Tariffe, piano di abbonamento e modalità di pagamento:</strong> Per l'utilizzo della piattaforma Artpay e del servizio artpay FAST, esclusivamente per le Gallerie partecipanti all'edizione 2026 della fiera The Phair di Torino, si prevede il seguente piano tariffario:
+      <div class="highlight-box">
+        <ul>
+          <li><strong>Periodo gratuito di prova:</strong> 3 (tre) mesi a partire dalla data di attivazione.</li>
+          <li><strong>Comunicazione al secondo mese:</strong> Artpay invierà alla Galleria una comunicazione riepilogativa via email con le condizioni del piano successivo.</li>
+          <li><strong>Conferma esplicita per il piano a pagamento:</strong> il passaggio al piano a pagamento non avviene automaticamente. In assenza di conferma entro 30 giorni dalla ricezione della comunicazione, l'account rimarrà attivo in sola lettura per ulteriori 30 giorni, decorsi i quali Artpay procederà alla disattivazione.</li>
+          <li>In caso di conferma: <strong>Canone mensile €29,00 + IVA</strong> — <strong>Commissione 6%</strong> per i primi 12 mesi dalla data di attivazione.</li>
+          <li>Al termine del periodo promozionale: commissione standard <strong>9%</strong>.</li>
+        </ul>
+      </div>
+    </li>
+
+    <li>
+      <strong>Compenso percentuale sulle opere vendute:</strong> La Galleria riconoscerà ad Artpay un importo percentuale sul prezzo finale (escluso il costo di spedizione) pari al <strong>9%</strong>, ridotto al <strong>6%</strong> per i primi 12 (dodici) mesi per le Gallerie partecipanti alla fiera The Phair di Torino 2026. Tale importo sarà prelevato direttamente da Artpay sull'importo versato dall'utente nel wallet del sistema di pagamento digitale, decorso il termine di ripensamento concesso all'utente per esercitare il diritto di recesso.
+    </li>
+
+    <li>
+      <strong>DAC7 – Obblighi di rendicontazione fiscale:</strong> Ove ricorrano i requisiti previsti dal D. Lgs. 32/2023, la Galleria si impegna a compilare in maniera veritiera, completa e corretta il formulario DAC7 e a restituirlo ad Artpay entro i termini di legge.
+    </li>
+
+    <li>
+      <strong>Rapporti con i Finanziatori:</strong> La Galleria si impegna a non effettuare transazioni con gli utenti per il tramite dei Finanziatori al di fuori del Sito, per tutta la durata del presente Accordo Commerciale.
+    </li>
+
+    <li>
+      <strong>Durata dell'Accordo Commerciale:</strong> Il presente Accordo Commerciale ha durata annuale dalla sua sottoscrizione. Alla scadenza, si rinnoverà automaticamente per ulteriori periodi annuali, salvo disdetta a mezzo PEC almeno 60 (sessanta) giorni prima di ciascuna scadenza.
+    </li>
+
+    <li>
+      <strong>Cessione dell'Accordo Commerciale:</strong> La Galleria non potrà cedere il presente Accordo Commerciale e/o i diritti e gli obblighi derivanti dallo stesso a terzi senza il preventivo consenso scritto di Artpay. Artpay potrà cedere il presente Accordo Commerciale ad altre società del proprio gruppo senza preavviso, oppure a terzi con comunicazione alla Galleria via email o PEC con preavviso di almeno 30 (trenta) giorni.
+    </li>
+
+    <li>
+      <strong>Riservatezza:</strong> Ciascuna Parte si impegna a tenere strettamente confidenziale il presente Accordo Commerciale e tutte le informazioni riservate acquisite in esecuzione dello stesso, astenendosi dal divulgarle a terzi senza il previo consenso scritto dell'altra Parte.
+    </li>
+
+    <li>
+      <strong>Privacy e protezione dei dati personali:</strong> Le Parti confermano che il trattamento dei rispettivi dati personali avverrà in conformità al Regolamento Europeo (UE) 2016/679 (GDPR) e alla normativa nazionale applicabile, secondo le informative presenti nel Sito.
+    </li>
+
+    <li>
+      <strong>Informativa reciproca:</strong> Le Parti si impegnano a scambiarsi in buona fede e trasparenza tutte le informazioni necessarie ai fini della migliore riuscita della collaborazione.
+    </li>
+
+    <li>
+      <strong>Foro competente e legge applicabile:</strong> Il presente Accordo Commerciale è regolato dalla legge italiana. Per ogni eventuale controversia, le Parti convengono che sarà esclusivamente competente il <strong>Foro di Torino</strong>.
+    </li>
+  </ol>
+
+  <p>Qualora concordiate con quanto precede, Vi saremmo grati se poteste restituirci copia del presente Accordo Commerciale da Voi sottoscritta in segno di piena e integrale accettazione.</p>
+
+  <p>Cordiali saluti.</p>
+
+  <div class="signature-section">
+    <table style="width: 100%; margin-top: 40px;">
+      <tr>
+        <td style="width: 48%; vertical-align: top;">
+          <strong>Artpay S.r.l.</strong>
+          <div style="margin-top: 8px;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 52" width="160" height="52">
+              <path d="M 8,38 C 14,20 24,12 32,16 C 38,19 35,30 28,32 C 20,35 16,26 24,21 C 30,17 40,20 46,28 C 52,36 50,44 56,40 C 61,37 64,26 70,24 C 76,22 78,32 74,37 C 70,41 63,39 66,33 C 69,27 78,26 86,30 C 94,34 91,44 98,41 C 104,38 106,28 114,26 C 120,24 122,32 118,37 C 114,42 106,40 110,34 C 113,29 122,28 130,32 C 138,36 138,44 144,41 C 149,38 152,32 155,30" fill="none" stroke="#1c2b4a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M 24,44 C 60,48 110,47 150,44" fill="none" stroke="#1c2b4a" stroke-width="0.9" stroke-linecap="round" opacity="0.35"/>
+            </svg>
+          </div>
+          <div class="signature-line" style="margin-top: 0;">Firma Artpay S.r.l.</div>
+        </td>
+        <td style="width: 4%;"></td>
+        <td style="width: 48%; vertical-align: top;">
+          <strong>Per accettazione — ${params.ragioneSociale}</strong><br/>
+          <em>${params.signerName}</em>
+          <div class="signature-line">
+            <span style="color: white; font-size: 1px;">/sn1/</span>
+            <span style="color: white; font-size: 1px;">/ds1/</span>
+          </div>
+        </td>
+      </tr>
+    </table>
   </div>
 
-  <div class="section">
-    <h2>PAGAMENTI</h2>
-    <p>
-      I pagamenti verranno elaborati tramite Stripe Connect con cadenza settimanale,
-      direttamente sul conto bancario del Vendor.
-    </p>
+  <div class="footer">
+    Artpay S.r.l. – Sede legale: Via Carloforte 60, 09123 Cagliari – P.IVA 04065160923 – hello@artpay.art – www.gallerie.artpay.art
   </div>
 
-  <div class="section">
-    <h2>RESPONSABILITÀ DEL VENDOR</h2>
-    <ul>
-      <li>Fornire descrizioni accurate e foto di qualità delle opere</li>
-      <li>Gestire le spedizioni in modo professionale e tempestivo</li>
-      <li>Rispondere alle richieste dei clienti entro 24 ore</li>
-      <li>Garantire l'autenticità delle opere vendute</li>
-    </ul>
-  </div>
-
-  <div class="section">
-    <h2>DURATA E RECESSO</h2>
-    <p>
-      Il contratto ha durata indeterminata e può essere rescisso da entrambe le parti
-      con preavviso scritto di 30 giorni.
-    </p>
-  </div>
-
-  <div class="section">
-    <h2>LEGGE APPLICABILE</h2>
-    <p>
-      Il presente contratto è regolato dalla legge italiana e qualsiasi controversia
-      sarà soggetta alla giurisdizione esclusiva dei tribunali italiani.
-    </p>
-  </div>
-
-  <div class="signature-area">
-    <p><strong>Il Vendor accetta i termini e le condizioni sopra riportati:</strong></p>
-    <div class="signature-line">
-      <p style="margin-top: 10px; text-align: center;">
-        <strong>Firma del Vendor</strong><br/>
-        Data: _________________
-      </p>
-    </div>
-  </div>
 </body>
 </html>
   `;
@@ -228,6 +302,10 @@ export async function createVendorContractEnvelope(
   const contractHTML = generateContractHTML({
     signerName: params.signerName,
     businessName: params.businessName,
+    ragioneSociale: params.ragioneSociale,
+    partitaIva: params.partitaIva,
+    indirizzo: params.indirizzo,
+    iban: params.iban,
     signerEmail: params.signerEmail,
   });
 
@@ -253,26 +331,28 @@ export async function createVendorContractEnvelope(
     clientUserId: params.onboardingId, // Per embedded signing
   });
 
-  // Aggiungi i tab di firma
+  // Aggiungi i tab di firma tramite anchor string (posizione definita nell'HTML)
   signer.tabs = DocuSign.Tabs.constructFromObject({
     signHereTabs: [
       DocuSign.SignHere.constructFromObject({
         documentId: '1',
-        pageNumber: '1',
         recipientId: '1',
         tabLabel: 'SignHereTab',
-        xPosition: '100',
-        yPosition: '700',
+        anchorString: '/sn1/',
+        anchorUnits: 'pixels',
+        anchorXOffset: '0',
+        anchorYOffset: '0',
       }),
     ],
     dateSignedTabs: [
       DocuSign.DateSigned.constructFromObject({
         documentId: '1',
-        pageNumber: '1',
         recipientId: '1',
         tabLabel: 'DateSignedTab',
-        xPosition: '300',
-        yPosition: '700',
+        anchorString: '/ds1/',
+        anchorUnits: 'pixels',
+        anchorXOffset: '0',
+        anchorYOffset: '20',
       }),
     ],
   });

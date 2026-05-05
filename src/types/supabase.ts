@@ -126,6 +126,10 @@ export interface StartOnboardingRequest {
   first_name: string;
   last_name: string;
   business_name: string;
+  ragione_sociale: string;
+  partita_iva: string;
+  indirizzo: string;
+  iban: string;
   terms_accepted: boolean;
 }
 

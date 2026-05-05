@@ -21,6 +21,9 @@ async function getStripeClient() {
 export interface CreateConnectedAccountParams {
   email: string;
   businessName: string;
+  ragioneSociale?: string;
+  partitaIva?: string;
+  indirizzo?: string;
   country?: string;
 }
 
@@ -47,7 +50,9 @@ export async function createConnectedAccount(
       email: params.email,
       business_type: 'company',
       company: {
-        name: params.businessName,
+        name: params.ragioneSociale || params.businessName,
+        ...(params.partitaIva && { tax_id: params.partitaIva }),
+        ...(params.indirizzo && { address: { line1: params.indirizzo, country: params.country || 'IT' } }),
       },
       capabilities: {
         card_payments: { requested: true },
