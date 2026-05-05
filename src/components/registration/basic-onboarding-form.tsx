@@ -25,6 +25,10 @@ export function BasicOnboardingForm() {
       first_name: "",
       last_name: "",
       business_name: "",
+      ragione_sociale: "",
+      partita_iva: "",
+      indirizzo: "",
+      iban: "",
       terms_accepted: false,
     },
   });
@@ -181,7 +185,81 @@ export function BasicOnboardingForm() {
                       <Input placeholder="es. Galleria d'Arte Moderna" {...field} />
                     </FormControl>
                     <FormDescription>
-                      Il nome della tua galleria o attività artistica
+                      Il nome commerciale della tua galleria o attività artistica
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Ragione Sociale */}
+              <FormField
+                control={form.control}
+                name="ragione_sociale"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Ragione Sociale *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="es. Galleria Arte Moderna S.r.l." {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      La ragione sociale dell'ente o azienda (come da registro delle imprese)
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Partita IVA */}
+              <FormField
+                control={form.control}
+                name="partita_iva"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Partita IVA *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="es. 01234567890" maxLength={11} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Indirizzo Sede */}
+              <FormField
+                control={form.control}
+                name="indirizzo"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Indirizzo Sede *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="es. Via Roma 1, 10121 Torino (TO)" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      Indirizzo completo della sede legale (via, CAP, città, provincia)
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* IBAN */}
+              <FormField
+                control={form.control}
+                name="iban"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>IBAN *</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="es. IT60X0542811101000000123456"
+                        maxLength={34}
+                        {...field}
+                        onChange={(e) => field.onChange(e.target.value.replace(/\s/g, "").toUpperCase())}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Il conto bancario su cui riceverai i pagamenti
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

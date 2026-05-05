@@ -82,11 +82,17 @@ export async function POST(
       }
     }
 
+    const meta = onboardingData.metadata || {};
+
     // Crea nuovo envelope DocuSign
     const { envelopeId } = await createVendorContractEnvelope({
       signerEmail: onboardingData.email,
       signerName: `${onboardingData.first_name} ${onboardingData.last_name}`,
       businessName: onboardingData.business_name,
+      ragioneSociale: meta.ragione_sociale || onboardingData.business_name,
+      partitaIva: meta.partita_iva || '',
+      indirizzo: meta.indirizzo || '',
+      iban: meta.iban || '',
       onboardingId: id,
       returnUrl: `${process.env.NEXT_PUBLIC_APP_URL}/onboarding/pending-approval?from=docusign`,
     });

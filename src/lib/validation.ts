@@ -138,6 +138,37 @@ export const basicOnboardingSchema = z.object({
     .max(100, "Il nome non può superare i 100 caratteri")
     .trim(),
 
+  ragione_sociale: z
+    .string()
+    .min(2, "La ragione sociale è obbligatoria")
+    .max(150, "La ragione sociale non può superare i 150 caratteri")
+    .trim(),
+
+  partita_iva: z
+    .string()
+    .min(11, "La Partita IVA deve essere di 11 cifre")
+    .max(16, "Partita IVA/Codice Fiscale non valido")
+    .regex(/^[0-9]{11}$|^[A-Z]{6}[0-9]{2}[A-Z][0-9]{2}[A-Z][0-9]{3}[A-Z]$/i, "Formato Partita IVA non valido (11 cifre)")
+    .trim(),
+
+  indirizzo: z
+    .string()
+    .min(5, "L'indirizzo della sede è obbligatorio")
+    .max(200, "L'indirizzo non può superare i 200 caratteri")
+    .trim(),
+
+  iban: z
+    .string()
+    .trim()
+    .transform((val) => val.replace(/\s/g, "").toUpperCase())
+    .pipe(
+      z
+        .string()
+        .min(15, "IBAN non valido")
+        .max(34, "IBAN non valido")
+        .regex(/^[A-Z]{2}[0-9]{2}[A-Z0-9]{11,30}$/, "Formato IBAN non valido (es. IT60X0542811101000000123456)")
+    ),
+
   terms_accepted: z
     .boolean()
     .refine((val) => val === true, {
