@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import type { StartOnboardingResponse } from "@/types/supabase";
 
@@ -29,7 +28,6 @@ export function BasicOnboardingForm() {
       partita_iva: "",
       indirizzo: "",
       iban: "",
-      terms_accepted: false,
     },
   });
 
@@ -262,35 +260,6 @@ export function BasicOnboardingForm() {
                       Il conto bancario su cui riceverai i pagamenti
                     </FormDescription>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Terms Accepted */}
-              <FormField
-                control={form.control}
-                name="terms_accepted"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>
-                        Accetto i termini e le condizioni *
-                      </FormLabel>
-                      <FormDescription>
-                        Acconsento al trattamento dei miei dati personali e accetto i{" "}
-                        <a href="/terms" className="text-primary hover:underline" target="_blank">
-                          termini e condizioni
-                        </a>{" "}
-                        del servizio.
-                      </FormDescription>
-                      <FormMessage />
-                    </div>
                   </FormItem>
                 )}
               />

@@ -169,11 +169,6 @@ export const basicOnboardingSchema = z.object({
         .regex(/^[A-Z]{2}[0-9]{2}[A-Z0-9]{11,30}$/, "Formato IBAN non valido (es. IT60X0542811101000000123456)")
     ),
 
-  terms_accepted: z
-    .boolean()
-    .refine((val) => val === true, {
-      message: "Devi accettare i termini e le condizioni",
-    }),
 });
 
 export type BasicOnboardingData = z.infer<typeof basicOnboardingSchema>;
