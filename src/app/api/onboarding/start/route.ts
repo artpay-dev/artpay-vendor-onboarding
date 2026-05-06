@@ -125,6 +125,8 @@ export async function POST(request: NextRequest) {
         first_name: first_name.trim(),
         last_name: last_name.trim(),
         business_name: business_name.trim(),
+        terms_accepted: true,
+        terms_accepted_at: new Date().toISOString(),
         status: 'draft',
         last_step_completed: 'registration',
         session_token: sessionToken,

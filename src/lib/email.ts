@@ -3,9 +3,9 @@
  * Gestisce l'invio di email tramite provider configurato (Resend, SendGrid, etc.)
  */
 
-const EMAIL_PROVIDER = process.env.EMAIL_PROVIDER || 'resend';
-const EMAIL_API_KEY = process.env.EMAIL_API_KEY;
-const EMAIL_FROM = process.env.EMAIL_FROM || 'noreply@artpay.art';
+const BREVO_API_KEY = process.env.BREVO_API_KEY;
+const EMAIL_FROM_NAME = process.env.EMAIL_FROM_NAME || 'Team artpay';
+const EMAIL_FROM = process.env.EMAIL_FROM || 'hello@artpay.art';
 
 interface SendEmailParams {
   to: string;
@@ -14,51 +14,41 @@ interface SendEmailParams {
   text?: string;
 }
 
-/**
- * Invia un'email usando Resend
- */
-async function sendEmailWithResend(params: SendEmailParams): Promise<void> {
-  if (!EMAIL_API_KEY) {
-    throw new Error('Missing EMAIL_API_KEY for Resend');
+async function sendEmailWithBrevo(params: SendEmailParams): Promise<void> {
+  if (!BREVO_API_KEY) {
+    throw new Error('Missing BREVO_API_KEY');
   }
 
-  const response = await fetch('https://api.resend.com/emails', {
+  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${EMAIL_API_KEY}`,
+      'api-key': BREVO_API_KEY,
     },
     body: JSON.stringify({
-      from: EMAIL_FROM,
-      to: params.to,
+      sender: { name: EMAIL_FROM_NAME, email: EMAIL_FROM },
+      to: [{ email: params.to }],
       subject: params.subject,
-      html: params.html,
-      text: params.text,
+      htmlContent: params.html,
+      textContent: params.text,
     }),
   });
 
   if (!response.ok) {
     const error = await response.json().catch(() => null);
-    console.error('Resend API error:', error);
+    console.error('Brevo API error:', error);
     throw new Error(`Failed to send email: ${error?.message || response.statusText}`);
   }
 
   const result = await response.json();
-  console.log('Email sent successfully via Resend:', result.id);
+  console.log('Email sent successfully via Brevo:', result.messageId);
 }
 
-/**
- * Invia un'email usando il provider configurato
- */
 export async function sendEmail(params: SendEmailParams): Promise<void> {
-  console.log(`Sending email to ${params.to} via ${EMAIL_PROVIDER}`);
+  console.log(`Sending email to ${params.to} via Brevo`);
 
   try {
-    if (EMAIL_PROVIDER === 'resend') {
-      await sendEmailWithResend(params);
-    } else {
-      throw new Error(`Unsupported email provider: ${EMAIL_PROVIDER}`);
-    }
+    await sendEmailWithBrevo(params);
   } catch (error) {
     console.error('Failed to send email:', error);
     throw error;
@@ -72,10 +62,11 @@ export function getOnboardingCompletionEmailTemplate(params: {
   firstName: string;
   lastName: string;
   businessName: string;
-  wpUsername: string;
+  email: string;
+  wpPassword: string;
   dashboardUrl: string;
 }): { subject: string; html: string; text: string } {
-  const subject = `Benvenuto su ArtPay, ${params.businessName}!`;
+  const subject = `Benvenuto su artpay, ${params.businessName}!`;
 
   const html = `
 <!DOCTYPE html>
@@ -158,15 +149,21 @@ export function getOnboardingCompletionEmailTemplate(params: {
     <p>Ciao <strong>${params.firstName} ${params.lastName}</strong>,</p>
 
     <p>
-      Fantastico! Il tuo onboarding su ArtPay è stato completato con successo.
+      Fantastico! Il tuo onboarding su artpay è stato completato con successo.
       Ora puoi iniziare a vendere le tue opere d'arte sulla nostra piattaforma!
     </p>
 
     <div class="info-box">
       <strong>📋 Riepilogo Account</strong><br/>
       Business Name: <strong>${params.businessName}</strong><br/>
-      Username WordPress: <strong>${params.wpUsername}</strong><br/>
       Pagamenti: <strong>Stripe Connect ✓</strong>
+    </div>
+
+    <div class="info-box" style="border-left-color: #10b981;">
+      <strong style="color: #10b981;">🔑 Credenziali di accesso Dashboard</strong><br/>
+      Email: <strong>${params.email}</strong><br/>
+      Password: <strong>${params.wpPassword}</strong><br/>
+      <small style="color: #6b7280;">Conserva queste credenziali in un luogo sicuro</small>
     </div>
 
     <h3>🚀 Prossimi Passi:</h3>
@@ -199,13 +196,13 @@ export function getOnboardingCompletionEmailTemplate(params: {
     </div>
 
     <p>
-      Grazie per aver scelto ArtPay come piattaforma per vendere le tue opere.<br/>
+      Grazie per aver scelto artpay come piattaforma per vendere le tue opere.<br/>
       Siamo entusiasti di averti con noi!
     </p>
 
     <p>
       Un caro saluto,<br/>
-      <strong>Il Team ArtPay</strong>
+      <strong>Il Team artpay</strong>
     </p>
   </div>
 
@@ -214,24 +211,28 @@ export function getOnboardingCompletionEmailTemplate(params: {
       Questa è un'email automatica. Se hai domande, contattaci a
       <a href="mailto:${process.env.ADMIN_EMAIL || 'support@artpay.art'}">${process.env.ADMIN_EMAIL || 'support@artpay.art'}</a>
     </p>
-    <p>&copy; ${new Date().getFullYear()} ArtPay. Tutti i diritti riservati.</p>
+    <p>&copy; ${new Date().getFullYear()} artpay. Tutti i diritti riservati.</p>
   </div>
 </body>
 </html>
   `;
 
   const text = `
-Benvenuto su ArtPay, ${params.businessName}!
+Benvenuto su artpay, ${params.businessName}!
 
 Ciao ${params.firstName} ${params.lastName},
 
-Fantastico! Il tuo onboarding su ArtPay è stato completato con successo.
+Fantastico! Il tuo onboarding su artpay è stato completato con successo.
 Ora puoi iniziare a vendere le tue opere d'arte sulla nostra piattaforma!
 
 RIEPILOGO ACCOUNT:
 - Business Name: ${params.businessName}
-- Username WordPress: ${params.wpUsername}
 - Pagamenti: Stripe Connect ✓
+
+CREDENZIALI DI ACCESSO DASHBOARD:
+- Email: ${params.email}
+- Password: ${params.wpPassword}
+(Conserva queste credenziali in un luogo sicuro)
 
 PROSSIMI PASSI:
 1. Accedi alla Dashboard - Gestisci i tuoi prodotti e ordini
@@ -249,15 +250,15 @@ con cadenza settimanale, al netto delle commissioni concordate:
 
 Hai bisogno di aiuto? Contattaci a ${process.env.ADMIN_EMAIL || 'support@artpay.art'}
 
-Grazie per aver scelto ArtPay come piattaforma per vendere le tue opere.
+Grazie per aver scelto artpay come piattaforma per vendere le tue opere.
 Siamo entusiasti di averti con noi!
 
 Un caro saluto,
-Il Team ArtPay
+Il Team artpay
 
 ---
 Questa è un'email automatica.
-© ${new Date().getFullYear()} ArtPay. Tutti i diritti riservati.
+© ${new Date().getFullYear()} artpay. Tutti i diritti riservati.
   `;
 
   return { subject, html, text };
@@ -271,9 +272,9 @@ export async function sendOnboardingCompletionEmail(params: {
   firstName: string;
   lastName: string;
   businessName: string;
-  wpUsername: string;
+  wpPassword: string;
 }): Promise<void> {
-  const dashboardUrl = `${process.env.NEXT_PUBLIC_ARTPAY_SERVER_URL}/wp-admin`;
+  const dashboardUrl = process.env.NEXT_PUBLIC_DASHBOARD_URL || 'https://dashboard.artpay.art/login';
 
   const emailTemplate = getOnboardingCompletionEmailTemplate({
     ...params,

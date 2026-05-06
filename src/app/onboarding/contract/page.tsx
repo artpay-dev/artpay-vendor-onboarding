@@ -107,7 +107,7 @@ export default function ContractPage() {
             <h3 className="text-lg font-semibold">Cosa succede ora?</h3>
             <p>
               Prima di procedere con l'onboarding, è necessario firmare il contratto vendor che stabilisce i termini e
-              le condizioni della collaborazione con ArtPay.
+              le condizioni della collaborazione con artpay.
             </p>
 
             <h4 className="text-base font-semibold mt-4">Il contratto include:</h4>
@@ -135,7 +135,7 @@ export default function ContractPage() {
           </div>
 
           <div className="flex gap-3 pt-4">
-            <Button onClick={() => router.push("/")} variant="outline" className="flex-1">
+            <Button onClick={() => router.push("/riprendi")} variant="outline" className="flex-1">
               Salva per dopo
             </Button>
             <Button onClick={handleStartContract} disabled={isLoading} className="flex-1">

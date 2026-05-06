@@ -106,7 +106,11 @@ export async function POST(request: NextRequest) {
             vendor_created_at: new Date().toISOString(),
             consumer_key: wpVendor.consumerKey,
             consumer_secret: wpVendor.consumerSecret,
-            temp_password: null, // Clear temporary password immediately after use
+            temp_password: null,
+            metadata: {
+              ...(onboarding.metadata || {}),
+              wp_password: onboarding.temp_password,
+            },
           })
           .eq('id', onboarding.id)
           .select();

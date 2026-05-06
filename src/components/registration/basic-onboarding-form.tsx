@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { basicOnboardingSchema, type BasicOnboardingData } from "@/lib/validation";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -201,7 +201,7 @@ export function BasicOnboardingForm() {
                       <Input placeholder="es. Galleria Arte Moderna S.r.l." {...field} />
                     </FormControl>
                     <FormDescription>
-                      La ragione sociale dell'ente o azienda (come da registro delle imprese)
+                      La ragione sociale dell&apos;ente o azienda (come da registro delle imprese)
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
