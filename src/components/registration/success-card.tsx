@@ -67,7 +67,7 @@ export function SuccessCard({ onReset }: SuccessCardProps) {
             className="flex-1"
             onClick={() => window.open(process.env.NEXT_PUBLIC_ARTPAY_URL || "https://artpay.art", "_blank")}
           >
-            Visita Artpay
+            Visita artpay
           </Button>
         </div>
       </CardContent>

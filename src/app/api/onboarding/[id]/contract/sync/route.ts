@@ -114,6 +114,10 @@ export async function POST(
         consumer_key: wpVendor.consumerKey,
         consumer_secret: wpVendor.consumerSecret,
         temp_password: null,
+        metadata: {
+          ...(onboarding.metadata || {}),
+          wp_password: onboarding.temp_password,
+        },
       })
       .eq('id', id);
 

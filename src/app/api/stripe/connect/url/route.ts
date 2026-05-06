@@ -73,7 +73,6 @@ export async function POST(request: NextRequest) {
         email: onboardingData.email,
         businessName: onboardingData.business_name,
         ragioneSociale: meta.ragione_sociale,
-        partitaIva: meta.partita_iva,
         indirizzo: meta.indirizzo,
         country: 'IT',
       });

@@ -56,3 +56,41 @@ export async function GET(request: NextRequest) {
     return apiError('Internal server error', 500);
   }
 }
+
+/**
+ * POST /api/onboarding/resume
+ * Riprende un onboarding incompleto tramite email e restituisce il session token
+ */
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json().catch(() => null);
+    const email = body?.email;
+
+    if (!email) {
+      return apiError('Email obbligatoria', 400);
+    }
+
+    const normalizedEmail = normalizeEmail(email);
+    if (!isValidEmail(normalizedEmail)) {
+      return apiError('Formato email non valido', 400);
+    }
+
+    const { data: incompleteOnboarding } = await (supabaseAdmin
+      .rpc as any)('get_incomplete_onboarding_by_email', { p_email: normalizedEmail });
+
+    if (!incompleteOnboarding || incompleteOnboarding.length === 0) {
+      return apiError('Nessuna registrazione in corso trovata per questa email', 404);
+    }
+
+    const existing = incompleteOnboarding[0];
+
+    return apiSuccess({
+      onboarding_id: existing.id,
+      session_token: existing.session_token,
+      resume_url: getNextStepFromStatus(existing.status),
+    });
+  } catch (error) {
+    console.error('Unexpected error in POST /api/onboarding/resume:', error);
+    return apiError('Internal server error', 500);
+  }
+}

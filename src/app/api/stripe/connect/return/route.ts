@@ -104,7 +104,7 @@ export async function GET(request: NextRequest) {
           firstName: onboardingData.first_name,
           lastName: onboardingData.last_name,
           businessName: onboardingData.business_name,
-          wpUsername: onboardingData.wp_username,
+          wpPassword: onboardingData.metadata?.wp_password || '',
         });
         console.log('Confirmation email sent successfully');
       } catch (error) {

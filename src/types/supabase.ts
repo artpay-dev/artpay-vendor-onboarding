@@ -130,7 +130,6 @@ export interface StartOnboardingRequest {
   partita_iva: string;
   indirizzo: string;
   iban: string;
-  terms_accepted: boolean;
 }
 
 export interface StartOnboardingResponse {

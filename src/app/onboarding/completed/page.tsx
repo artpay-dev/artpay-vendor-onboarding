@@ -6,6 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { CheckCircle, ExternalLink, Loader2 } from "lucide-react";
 
+const DASHBOARD_URL = process.env.NEXT_PUBLIC_DASHBOARD_URL || "https://dashboard.artpay.art/login";
+
 function CompletedPageContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [businessName, setBusinessName] = useState<string>("");
@@ -13,38 +15,31 @@ function CompletedPageContent() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    // Verifica che l'onboarding sia effettivamente completato
     const sessionToken = document.cookie
       .split("; ")
       .find((row) => row.startsWith("session_token="))
       ?.split("=")[1];
 
-    // Prova a prendere onboarding_id da query param o da sessionStorage
     const onboardingIdFromUrl = searchParams.get("onboarding_id");
     const onboardingIdFromStorage = sessionStorage.getItem("onboarding_id");
     const onboardingId = onboardingIdFromUrl || onboardingIdFromStorage;
 
-    // Se manca onboarding_id, salva quello dall'URL
     if (onboardingIdFromUrl && !onboardingIdFromStorage) {
       sessionStorage.setItem("onboarding_id", onboardingIdFromUrl);
     }
 
-    // Se manca l'ID, redirect a home
     if (!onboardingId) {
       console.error("Missing onboarding ID");
       router.push("/");
       return;
     }
 
-    // Se manca il token MA abbiamo l'ID dall'URL, permetti di continuare
-    // (scenario: torniamo da Stripe via ngrok ma i cookie sono su localhost)
     if (!sessionToken && !onboardingIdFromUrl) {
       console.error("Missing session token and no ID in URL");
       router.push("/");
       return;
     }
 
-    // Fetch status per conferma (se abbiamo il token)
     if (sessionToken) {
       fetch(`/api/onboarding/${onboardingId}/status`, {
         headers: { Authorization: `Bearer ${sessionToken}` },
@@ -53,14 +48,13 @@ function CompletedPageContent() {
         .then((result) => {
           if (result.data) {
             setBusinessName(result.data.data.business_name || "");
-            setIsLoading(false);
           }
+          setIsLoading(false);
         })
         .catch(() => {
           setIsLoading(false);
         });
     } else {
-      // Nessun token, ma abbiamo l'ID dall'URL - mostra pagina generica
       setBusinessName("Vendor");
       setIsLoading(false);
     }
@@ -84,18 +78,18 @@ function CompletedPageContent() {
             </div>
             <div>
               <CardTitle className="font-heading text-2xl">Onboarding Completato!</CardTitle>
-              <CardDescription>Il tuo account Gallerista è pronto all'uso</CardDescription>
+              <CardDescription>Il tuo account Gallerista è pronto all&apos;uso</CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 p-6 rounded-lg border border-green-200 dark:border-green-900">
             <h3 className="text-lg font-semibold text-green-900 dark:text-green-100 mb-2">
-              Benvenuto su ArtPay, {businessName}!
+              Benvenuto su artpay, {businessName}!
             </h3>
             <p className="text-sm text-green-800 dark:text-green-200">
-              Hai completato con successo tutti gli step dell'onboarding. Il tuo account è ora attivo e puoi iniziare
-              a vendere le tue opere d'arte sulla piattaforma.
+              Hai completato con successo tutti gli step dell&apos;onboarding. Il tuo account è ora attivo e puoi iniziare
+              a vendere le tue opere d&apos;arte sulla piattaforma.
             </p>
           </div>
 
@@ -106,9 +100,9 @@ function CompletedPageContent() {
               <div className="flex items-start gap-3 p-4 rounded-lg border">
                 <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
                 <div>
-                  <p className="font-medium">Accedi al tuo dashboard</p>
+                  <p className="font-medium">Usa artpay FAST per inviare preventivi</p>
                   <p className="text-sm text-muted-foreground">
-                    Gestisci il tuo catalogo, ordini e statistiche di vendita
+                    Invia preventivi ai tuoi clienti con opzioni di pagamento rateale integrate
                   </p>
                 </div>
               </div>
@@ -116,9 +110,9 @@ function CompletedPageContent() {
               <div className="flex items-start gap-3 p-4 rounded-lg border">
                 <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
                 <div>
-                  <p className="font-medium">Carica le tue opere</p>
+                  <p className="font-medium">Accedi alla dashboard per vedere lo stato degli ordini</p>
                   <p className="text-sm text-muted-foreground">
-                    Inizia ad aggiungere i tuoi prodotti al marketplace
+                    Monitora vendite, pagamenti e lo stato di ogni transazione in tempo reale
                   </p>
                 </div>
               </div>
@@ -126,8 +120,10 @@ function CompletedPageContent() {
               <div className="flex items-start gap-3 p-4 rounded-lg border">
                 <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
                 <div>
-                  <p className="font-medium">Configura il tuo profilo</p>
-                  <p className="text-sm text-muted-foreground">Personalizza la tua pagina vendor</p>
+                  <p className="font-medium">Modifica il tuo profilo</p>
+                  <p className="text-sm text-muted-foreground">
+                    Personalizza la tua pagina galleria con descrizione, immagini e informazioni di contatto
+                  </p>
                 </div>
               </div>
             </div>
@@ -144,21 +140,16 @@ function CompletedPageContent() {
           </div>
 
           <div className="flex gap-3 pt-4">
-            <Button asChild className="flex-1">
-              <a href={`${process.env.NEXT_PUBLIC_ARTPAY_SERVER_URL}/wp-login.php` || ""}>
+            <Button className="flex-1" asChild>
+              <a href={DASHBOARD_URL} target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="mr-2 h-4 w-4" />
                 Vai al Dashboard
-              </a>
-            </Button>
-            <Button variant="outline" asChild className="flex-1 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-              <a href={`${process.env.NEXT_PUBLIC_ARTPAY_SERVER_URL}/wp-admin/admin.php?page=vendor-profile`}>
-                Modifica Profilo
               </a>
             </Button>
           </div>
 
           <p className="text-xs text-center text-muted-foreground pt-4">
-            Riceverai un'email di conferma con tutte le informazioni del tuo account
+            Riceverai un&apos;email di conferma con tutte le informazioni del tuo account
           </p>
         </CardContent>
       </Card>

@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { CreditCard, Loader2, AlertCircle } from "lucide-react";
+import { CreditCard, Loader2, AlertCircle, Clock, FileText, Building2, BadgeCheck } from "lucide-react";
 
 function StripeConnectPageContent() {
   const [isLoading, setIsLoading] = useState(false);
@@ -137,49 +137,76 @@ function StripeConnectPageContent() {
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="prose prose-sm max-w-none">
-            <h3 className="text-lg font-semibold">Perché connettere Stripe?</h3>
-            <p>
-              ArtPay utilizza Stripe Connect per gestire i pagamenti in modo sicuro. Connettendo il tuo account Stripe,
-              potrai ricevere i pagamenti direttamente sul tuo conto bancario.
-            </p>
 
-            <h4 className="text-base font-semibold mt-4">Cosa otterrai:</h4>
-            <ul className="list-disc pl-5 space-y-1">
-              <li>Pagamenti automatici settimanali sul tuo conto</li>
-              <li>Dashboard completa per monitorare le vendite</li>
-              <li>Protezione contro le frodi e i chargeback</li>
-              <li>Supporto per carte di credito e altre modalità di pagamento</li>
-            </ul>
-
-            <h4 className="text-base font-semibold mt-4">Come funziona?</h4>
-            <ol className="list-decimal pl-5 space-y-1">
-              <li>Cliccando sul pulsante qui sotto, sarai reindirizzato su Stripe</li>
-              <li>Crea o connetti un account Stripe esistente</li>
-              <li>Completa le informazioni richieste (dati fiscali, conto bancario, ecc.)</li>
-              <li>Tornerai automaticamente qui per completare l'onboarding</li>
-            </ol>
+          {/* Banner tempo stimato */}
+          <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 flex items-center gap-3">
+            <Clock className="h-6 w-6 text-amber-600 flex-shrink-0" />
+            <div>
+              <p className="font-semibold text-amber-900 dark:text-amber-100">Questo è il passaggio più lungo — ma ci vogliono al massimo 10 minuti</p>
+              <p className="text-sm text-amber-800 dark:text-amber-200 mt-0.5">Tieni a portata di mano i documenti elencati qui sotto e procederai senza intoppi.</p>
+            </div>
           </div>
 
-          <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg border border-blue-200 dark:border-blue-900">
-            <div className="flex gap-3">
-              <AlertCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-blue-900 dark:text-blue-100">
-                <strong>Importante:</strong> Stripe richiederà informazioni fiscali e bancarie per conformità con le
-                normative sui pagamenti. Tutti i dati sono gestiti in modo sicuro da Stripe.
+          {/* Documenti necessari */}
+          <div className="border rounded-lg overflow-hidden">
+            <div className="bg-muted px-4 py-3 flex items-center gap-2">
+              <FileText className="h-4 w-4 text-foreground" />
+              <span className="font-semibold text-sm">Documenti e dati che ti verranno richiesti</span>
+            </div>
+            <div className="divide-y">
+              <div className="flex items-start gap-3 px-4 py-3">
+                <BadgeCheck className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium">Documento d&apos;identità</p>
+                  <p className="text-xs text-muted-foreground">Carta d&apos;identità o passaporto del titolare/rappresentante legale</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 px-4 py-3">
+                <Building2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium">Dati aziendali</p>
+                  <p className="text-xs text-muted-foreground">Ragione sociale, Partita IVA, indirizzo sede legale (già inseriti in fase di registrazione — Stripe potrebbe richiederli di nuovo)</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 px-4 py-3">
+                <CreditCard className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium">Coordinate bancarie (IBAN)</p>
+                  <p className="text-xs text-muted-foreground">Il conto su cui riceverai i pagamenti dalle vendite</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 px-4 py-3">
+                <BadgeCheck className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium">Documenti dei titolari effettivi</p>
+                  <p className="text-xs text-muted-foreground">Documento d&apos;identità di ogni socio o titolare con quota superiore al 25% del capitale</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 px-4 py-3">
+                <FileText className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium">Numero REA</p>
+                  <p className="text-xs text-muted-foreground">Repertorio Economico Amministrativo — lo trovi sulla visura camerale (es. TO-123456)</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 px-4 py-3">
+                <AlertCircle className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium">Numero di telefono</p>
+                  <p className="text-xs text-muted-foreground">Per la verifica dell&apos;identità tramite SMS</p>
+                </div>
               </div>
             </div>
           </div>
 
           <div className="bg-muted/50 p-4 rounded-lg">
             <p className="text-sm text-muted-foreground">
-              <strong>Nota:</strong> Se non hai ancora un account Stripe, ne verrà creato uno automaticamente durante
-              il processo. Non è necessaria alcuna registrazione preliminare.
+              <strong>Non hai ancora un account Stripe?</strong> Verrà creato automaticamente durante il processo — non è necessaria alcuna registrazione preliminare.
             </p>
           </div>
 
           <div className="flex gap-3 pt-4">
-            <Button onClick={() => router.push("/")} variant="outline" className="flex-1">
+            <Button onClick={() => router.push("/riprendi")} variant="outline" className="flex-1">
               Salva per dopo
             </Button>
             <Button onClick={handleConnectStripe} disabled={isLoading} className="flex-1">

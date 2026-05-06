@@ -94,13 +94,13 @@ function PendingApprovalPageContent() {
       .find((row) => row.startsWith("session_token="))
       ?.split("=")[1];
 
-    // Prova a prendere onboarding_id da sessionStorage O da query param
-    const onboardingIdFromStorage = sessionStorage.getItem("onboarding_id");
     const onboardingIdFromUrl = searchParams.get("onboarding_id");
-    const onboardingId = onboardingIdFromStorage || onboardingIdFromUrl;
+    const onboardingIdFromStorage = sessionStorage.getItem("onboarding_id");
 
-    // Se c'è nei query params ma non in storage, salvalo
-    if (onboardingIdFromUrl && !onboardingIdFromStorage) {
+    // L'URL param ha sempre priorità (è la fonte autoritativa da DocuSign)
+    const onboardingId = onboardingIdFromUrl || onboardingIdFromStorage;
+
+    if (onboardingIdFromUrl) {
       sessionStorage.setItem("onboarding_id", onboardingIdFromUrl);
     }
 
@@ -163,7 +163,7 @@ function PendingApprovalPageContent() {
       .find((row) => row.startsWith("session_token="))
       ?.split("=")[1];
     const onboardingId =
-      sessionStorage.getItem("onboarding_id") || searchParams.get("onboarding_id");
+      searchParams.get("onboarding_id") || sessionStorage.getItem("onboarding_id");
 
     if (!sessionToken || !onboardingId) return;
 
@@ -284,7 +284,7 @@ function PendingApprovalPageContent() {
             <h3 className="text-lg font-semibold">Cosa sta succedendo?</h3>
             <p>
               Ottimo! Hai firmato il contratto con successo. <br />
-              Ora stiamo preparando tutto il necessario per la tua galleria online su ArtPay.
+              Ora stiamo preparando tutto il necessario per la tua galleria online su artpay.
             </p>
 
             <h4 className="text-base font-semibold mt-4">Stiamo lavorando a:</h4>
