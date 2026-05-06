@@ -3,6 +3,7 @@ import { Inter, Inter_Tight } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import Logo from "@/components/Logo";
+import Script from "next/script";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -38,6 +39,12 @@ export default function RootLayout({
         </header>
         {children}
         <Toaster />
+        <Script
+          src="https://embed.tawk.to/67ee9c6e38d5da19111fcda7/1inu164qh"
+          strategy="lazyOnload"
+          crossOrigin="*"
+          charSet="UTF-8"
+        />
       </body>
     </html>
   );
