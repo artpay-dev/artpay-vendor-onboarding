@@ -139,11 +139,15 @@ function StripeConnectPageContent() {
         <CardContent className="space-y-6">
 
           {/* Banner tempo stimato */}
-          <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 flex items-center gap-3">
-            <Clock className="h-6 w-6 text-amber-600 flex-shrink-0" />
-            <div>
+          <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 flex items-start gap-3">
+            <Clock className="h-6 w-6 text-amber-600 flex-shrink-0 mt-0.5" />
+            <div className="space-y-2">
               <p className="font-semibold text-amber-900 dark:text-amber-100">Questo è il passaggio più lungo — ma ci vogliono al massimo 10 minuti</p>
-              <p className="text-sm text-amber-800 dark:text-amber-200 mt-0.5">Tieni a portata di mano i documenti elencati qui sotto e procederai senza intoppi.</p>
+              <p className="text-sm text-amber-800 dark:text-amber-200">Tieni a portata di mano i documenti elencati qui sotto e procederai senza intoppi.</p>
+              <div className="text-sm text-amber-800 dark:text-amber-200 space-y-0.5 pt-1 border-t border-amber-200 dark:border-amber-700">
+                <p><strong>Stripe</strong> è il sistema di pagamento online usato da milioni di aziende nel mondo per ricevere pagamenti in modo sicuro.</p>
+                <p><strong>Stripe Connect</strong> è la funzione che permette ad artpay di raccogliere i pagamenti degli acquirenti e accreditarteli direttamente sul tuo conto bancario.</p>
+              </div>
             </div>
           </div>
 
