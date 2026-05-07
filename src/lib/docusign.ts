@@ -5,6 +5,9 @@
  * NOTA: Usa dynamic import per evitare problemi con Next.js bundler
  */
 
+import fs from 'fs';
+import path from 'path';
+
 // Dynamic import per DocuSign (caricato solo quando serve)
 async function getDocuSignSDK() {
   const docusign = await import('docusign-esign');
@@ -113,6 +116,7 @@ function generateContractHTML(params: {
   signerEmail: string;
 }) {
   const today = new Date().toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' });
+  const firmaBase64 = fs.readFileSync(path.join(process.cwd(), 'public', 'firma-luca.png')).toString('base64');
 
   return `
 <!DOCTYPE html>
@@ -121,7 +125,7 @@ function generateContractHTML(params: {
   <meta charset="UTF-8">
   <style>
     body { font-family: Arial, sans-serif; font-size: 11pt; padding: 60px; max-width: 800px; margin: 0 auto; line-height: 1.5; color: #111; }
-    .header-logo { font-weight: bold; font-size: 18pt; letter-spacing: 2px; margin-bottom: 30px; }
+    .header-logo { margin-bottom: 30px; }
     .recipient { margin-bottom: 20px; }
     .meta { margin-bottom: 30px; }
     .subject { font-weight: bold; margin-bottom: 20px; }
@@ -139,7 +143,16 @@ function generateContractHTML(params: {
 </head>
 <body>
 
-  <div class="header-logo">artpay</div>
+  <div class="header-logo">
+    <svg width="83" height="24" viewBox="0 0 83 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 14.4573C0 11.7908 1.50262 10.2154 4.33347 9.82052L10.0533 9.00287V8.09453C10.0533 6.79126 9.21044 6.00433 7.37358 6.00433C5.65734 6.00433 4.57325 6.67132 4.42357 8.00384H0.449041C0.690274 4.67034 3.42957 2.79224 7.46368 2.79224C11.4978 2.79224 14.1165 4.88244 14.1165 8.15596V18.822H10.2335L10.0824 16.4275C9.1494 18.1243 7.34306 19.2154 5.05426 19.2154C1.92405 19.214 0 17.2145 0 14.4573ZM10.0533 13.094V11.8522L5.83899 12.4285C4.54418 12.6099 3.88152 13.1555 3.88152 14.2466C3.88152 15.3378 4.78396 16.0341 6.32 16.0341C8.36757 16.0341 10.0533 14.8215 10.0533 13.0955V13.094Z" fill="#3E4EEC"/>
+      <path d="M15.8809 18.8206V3.18429H19.9455L20.0356 6.21501C20.7883 4.3369 22.5961 2.91223 24.8849 2.91223V6.68893C22.0846 6.68893 20.0966 8.51876 20.0966 11.276V18.8206H15.8823H15.8809Z" fill="#3E4EEC"/>
+      <path d="M52.6567 14.4573C52.6567 11.7908 54.3424 10.2154 57.1733 9.82052L62.8931 9.00287V8.09453C62.8931 6.79126 62.0503 6.00433 60.2134 6.00433C58.4972 6.00433 57.4131 6.67132 57.2634 8.00384H53.2889C53.5301 4.67034 56.2694 2.79224 60.3035 2.79224C64.3376 2.79224 66.9563 4.88244 66.9563 8.15596V18.822H63.0733L62.9222 16.4275C61.9892 18.1243 60.1829 19.2154 57.8941 19.2154C54.7624 19.2154 52.6553 17.2159 52.6553 14.4573H52.6567ZM62.8931 13.094V11.8522L58.6788 12.4285C57.384 12.6099 56.7228 13.1555 56.7228 14.2466C56.7228 15.3378 57.6252 16.0341 59.1613 16.0341C61.2089 16.0341 62.8946 14.8215 62.8946 13.0955L62.8931 13.094Z" fill="#3E4EEC"/>
+      <path d="M30.4741 13.9425V6.68893H34.5082V3.18576H30.4741V0H26.2598V14.3052C26.2598 17.5173 28.0356 19.214 31.7689 19.214C32.6713 19.214 33.8455 19.0619 34.5692 18.8206V15.5778C34.1478 15.6992 33.4546 15.8805 32.7033 15.8805C31.0772 15.8805 30.4755 15.3042 30.4755 13.941L30.4741 13.9425Z" fill="#3E4EEC"/>
+      <path d="M40.2438 23.9721V16.6089C41.0867 18.0628 42.7724 19.2154 44.9711 19.2154C49.1564 19.2154 51.714 15.822 51.714 11.1852V10.7917C51.714 6.1857 49.216 2.79224 45.0612 2.79224C42.5326 2.79224 40.7859 4.18619 40.0636 5.58014L39.943 3.1857H35.999V23.9736H40.2438V23.9721ZM40.0927 10.7903C40.0927 7.73031 41.3875 6.03212 43.765 6.03212C46.1424 6.03212 47.4372 7.72885 47.4372 10.7903V11.1838C47.4372 14.2437 46.1729 15.9405 43.765 15.9405C41.357 15.9405 40.0927 14.2437 40.0927 11.1838V10.7903Z" fill="#3E4EEC"/>
+      <path d="M70.9979 24L72.9147 18.6729L67.0146 3.18872H71.4702L75.1424 14.0975L78.6955 3.18872H82.9999L76.4692 20.6665C75.7252 22.6587 73.836 23.9839 71.7201 23.9956L70.9979 24Z" fill="#3E4EEC"/>
+    </svg>
+  </div>
 
   <div class="recipient">
     Spett.le<br/>
@@ -253,10 +266,7 @@ function generateContractHTML(params: {
         <td style="width: 48%; vertical-align: top;">
           <strong>artpay S.r.l.</strong>
           <div style="margin-top: 8px;">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 52" width="160" height="52">
-              <path d="M 8,38 C 14,20 24,12 32,16 C 38,19 35,30 28,32 C 20,35 16,26 24,21 C 30,17 40,20 46,28 C 52,36 50,44 56,40 C 61,37 64,26 70,24 C 76,22 78,32 74,37 C 70,41 63,39 66,33 C 69,27 78,26 86,30 C 94,34 91,44 98,41 C 104,38 106,28 114,26 C 120,24 122,32 118,37 C 114,42 106,40 110,34 C 113,29 122,28 130,32 C 138,36 138,44 144,41 C 149,38 152,32 155,30" fill="none" stroke="#1c2b4a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M 24,44 C 60,48 110,47 150,44" fill="none" stroke="#1c2b4a" stroke-width="0.9" stroke-linecap="round" opacity="0.35"/>
-            </svg>
+            <img src="data:image/png;base64,${firmaBase64}" alt="Firma artpay S.r.l." style="height: 52px; width: auto;" />
           </div>
           <div class="signature-line" style="margin-top: 0;">Firma artpay S.r.l.</div>
         </td>
