@@ -36,7 +36,7 @@ export async function POST(
 
     const { data: onboarding } = await supabaseAdmin
       .from('vendor_onboardings')
-      .select('email, first_name, business_name, status, last_step_completed')
+      .select('email, first_name, business_name')
       .eq('id', id)
       .single();
 
@@ -50,7 +50,6 @@ export async function POST(
       email: data.email,
       firstName: data.first_name,
       businessName: data.business_name,
-      currentStep: data.last_step_completed || data.status,
     });
 
     return apiSuccess({ sent: true });
