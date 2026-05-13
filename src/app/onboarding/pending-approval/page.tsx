@@ -168,10 +168,14 @@ function PendingApprovalPageContent() {
     if (!sessionToken || !onboardingId) return;
 
     try {
-      await fetch(`/api/onboarding/${onboardingId}/contract/sync`, {
+      const res = await fetch(`/api/onboarding/${onboardingId}/contract/sync`, {
         method: "POST",
         headers: { Authorization: `Bearer ${sessionToken}` },
       });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        console.error(`Contract sync failed (${res.status}):`, body);
+      }
     } catch (error) {
       console.error("Contract sync error:", error);
     }

@@ -84,6 +84,12 @@ export async function POST(request: NextRequest) {
 
     const existing = incompleteOnboarding[0];
 
+    // Rinnova session_expires_at nel DB così validate_session_token non fallisce
+    const newExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    await (supabaseAdmin.from('vendor_onboardings') as any)
+      .update({ session_expires_at: newExpiry })
+      .eq('id', existing.id);
+
     return apiSuccess({
       onboarding_id: existing.id,
       session_token: existing.session_token,

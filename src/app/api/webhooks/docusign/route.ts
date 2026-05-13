@@ -79,6 +79,10 @@ export async function POST(request: NextRequest) {
         console.log(`Contract signed - Now creating WordPress vendor...`);
 
         // 3. AUTOMATICO: Crea vendor su WordPress
+        if (!onboarding.email) {
+          throw new Error(`Email missing for onboarding ${onboarding.id} — cannot create WordPress vendor`);
+        }
+
         if (!onboarding.temp_password) {
           throw new Error('Temporary password not found - cannot create WordPress vendor');
         }
