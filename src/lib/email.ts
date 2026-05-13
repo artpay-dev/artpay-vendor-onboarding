@@ -271,18 +271,8 @@ export function getSaveForLaterEmailTemplate(params: {
   firstName: string;
   businessName: string;
   resumeUrl: string;
-  currentStep: string;
 }): { subject: string; html: string; text: string } {
   const subject = `Riprendi la tua registrazione su artpay`;
-
-  const stepLabels: Record<string, string> = {
-    registration: 'Firma del contratto',
-    contract: 'Firma del contratto',
-    contract_pending: 'Firma del contratto',
-    vendor_created: 'Connessione Stripe',
-    stripe_pending: 'Connessione Stripe',
-  };
-  const nextStep = stepLabels[params.currentStep] || 'completamento registrazione';
 
   const html = `
 <!DOCTYPE html>
@@ -352,11 +342,6 @@ export function getSaveForLaterEmailTemplate(params: {
       Nessun problema — il tuo progresso è stato salvato e puoi riprendere quando vuoi.
     </p>
 
-    <div class="info-box">
-      <strong>Prossimo step da completare:</strong><br/>
-      ${nextStep}
-    </div>
-
     <p>Clicca il pulsante qui sotto per riprendere esattamente da dove hai lasciato:</p>
 
     <div style="text-align: center;">
@@ -391,8 +376,6 @@ Ciao ${params.firstName},
 Hai messo in pausa la registrazione di ${params.businessName} su artpay.
 Il tuo progresso è stato salvato — puoi riprendere quando vuoi.
 
-Prossimo step: ${nextStep}
-
 Riprendi la registrazione: ${params.resumeUrl}
 
 Hai bisogno di aiuto? Scrivici a ${process.env.ADMIN_EMAIL || 'support@artpay.art'}
@@ -411,7 +394,6 @@ export async function sendSaveForLaterEmail(params: {
   email: string;
   firstName: string;
   businessName: string;
-  currentStep: string;
 }): Promise<void> {
   const resumeUrl = `${process.env.NEXT_PUBLIC_APP_URL}/riprendi`;
 
@@ -419,7 +401,6 @@ export async function sendSaveForLaterEmail(params: {
     firstName: params.firstName,
     businessName: params.businessName,
     resumeUrl,
-    currentStep: params.currentStep,
   });
 
   await sendEmail({
