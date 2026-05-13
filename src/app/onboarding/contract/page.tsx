@@ -33,6 +33,22 @@ export default function ContractPage() {
     setIsLoading(false);
   }, [router]);
 
+  const handleSaveForLater = async () => {
+    const sessionToken = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("session_token="))
+      ?.split("=")[1];
+
+    if (sessionToken && onboardingId) {
+      fetch(`/api/onboarding/${onboardingId}/save-for-later`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${sessionToken}` },
+      }).catch(() => {});
+    }
+
+    router.push("/riprendi");
+  };
+
   const handleStartContract = async () => {
     if (!onboardingId) return;
 
@@ -135,7 +151,7 @@ export default function ContractPage() {
           </div>
 
           <div className="flex gap-3 pt-4">
-            <Button onClick={() => router.push("/riprendi")} variant="outline" className="flex-1">
+            <Button onClick={handleSaveForLater} variant="outline" className="flex-1">
               Salva per dopo
             </Button>
             <Button onClick={handleStartContract} disabled={isLoading} className="flex-1">

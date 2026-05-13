@@ -49,46 +49,60 @@ export async function POST(
 
     const onboarding = onboardingData as any;
 
-    // Se già processato, non fare nulla
+    // Se già processato, non fare nulla — a meno che il vendor WP non sia mai stato creato
+    // (può succedere se il webhook ha aggiornato lo status ma la chiamata WP è fallita)
     if (onboarding.status !== 'contract_pending') {
-      return apiSuccess({ status: onboarding.status, already_processed: true });
+      if (onboarding.status === 'contract_signed' && !onboarding.wp_user_id) {
+        // Recovery: contratto firmato ma vendor WP mai creato — riprova creazione
+        console.log(`Sync recovery: contract_signed but no wp_user_id for onboarding ${id} — retrying vendor creation`);
+      } else {
+        return apiSuccess({ status: onboarding.status, already_processed: true });
+      }
     }
 
-    if (!onboarding.docusign_envelope_id) {
-      return apiError('No envelope ID found', 400);
+    const isRecovery = onboarding.status === 'contract_signed';
+
+    if (!isRecovery) {
+      if (!onboarding.docusign_envelope_id) {
+        return apiError('No envelope ID found', 400);
+      }
+
+      // Chiedi direttamente a DocuSign lo stato corrente
+      const envelopeStatus = await getEnvelopeStatus(onboarding.docusign_envelope_id);
+      console.log(`DocuSign sync - envelope ${onboarding.docusign_envelope_id} status:`, envelopeStatus.status);
+
+      if (envelopeStatus.status !== 'completed') {
+        return apiSuccess({ status: onboarding.status, docusign_status: envelopeStatus.status });
+      }
+
+      // Contratto firmato: aggiorna status prima di creare il vendor WP
+      console.log(`Contract sync: processing completed envelope for onboarding ${id}`);
+
+      await (supabaseAdmin.from('vendor_onboardings') as any)
+        .update({
+          status: 'contract_signed',
+          docusign_signed_at: envelopeStatus.completedDateTime || new Date().toISOString(),
+          contract_pdf_url: `https://demo.docusign.net/documents/${onboarding.docusign_envelope_id}`,
+        })
+        .eq('id', id);
+
+      await (supabaseAdmin.rpc as any)('create_audit_log', {
+        p_onboarding_id: id,
+        p_action: 'contract_signed',
+        p_actor_type: 'user',
+        p_old_status: onboarding.status,
+        p_new_status: 'contract_signed',
+        p_details: {
+          envelope_id: onboarding.docusign_envelope_id,
+          signed_at: envelopeStatus.completedDateTime,
+          source: 'sync_endpoint',
+        },
+      });
     }
 
-    // Chiedi direttamente a DocuSign lo stato corrente
-    const envelopeStatus = await getEnvelopeStatus(onboarding.docusign_envelope_id);
-    console.log(`DocuSign sync - envelope ${onboarding.docusign_envelope_id} status:`, envelopeStatus.status);
-
-    if (envelopeStatus.status !== 'completed') {
-      return apiSuccess({ status: onboarding.status, docusign_status: envelopeStatus.status });
+    if (!onboarding.email) {
+      throw new Error(`Email missing for onboarding ${id} — cannot create WordPress vendor`);
     }
-
-    // Contratto firmato: processa esattamente come fa il webhook
-    console.log(`Contract sync: processing completed envelope for onboarding ${id}`);
-
-    await (supabaseAdmin.from('vendor_onboardings') as any)
-      .update({
-        status: 'contract_signed',
-        docusign_signed_at: envelopeStatus.completedDateTime || new Date().toISOString(),
-        contract_pdf_url: `https://demo.docusign.net/documents/${onboarding.docusign_envelope_id}`,
-      })
-      .eq('id', id);
-
-    await (supabaseAdmin.rpc as any)('create_audit_log', {
-      p_onboarding_id: id,
-      p_action: 'contract_signed',
-      p_actor_type: 'user',
-      p_old_status: onboarding.status,
-      p_new_status: 'contract_signed',
-      p_details: {
-        envelope_id: onboarding.docusign_envelope_id,
-        signed_at: envelopeStatus.completedDateTime,
-        source: 'sync_endpoint',
-      },
-    });
 
     if (!onboarding.temp_password) {
       throw new Error('Temporary password not found - cannot create WordPress vendor');

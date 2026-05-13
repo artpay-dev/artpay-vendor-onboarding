@@ -265,6 +265,172 @@ Questa è un'email automatica.
 }
 
 /**
+ * Template email "salva per dopo"
+ */
+export function getSaveForLaterEmailTemplate(params: {
+  firstName: string;
+  businessName: string;
+  resumeUrl: string;
+  currentStep: string;
+}): { subject: string; html: string; text: string } {
+  const subject = `Riprendi la tua registrazione su artpay`;
+
+  const stepLabels: Record<string, string> = {
+    registration: 'Firma del contratto',
+    contract: 'Firma del contratto',
+    contract_pending: 'Firma del contratto',
+    vendor_created: 'Connessione Stripe',
+    stripe_pending: 'Connessione Stripe',
+  };
+  const nextStep = stepLabels[params.currentStep] || 'completamento registrazione';
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px 20px;
+      text-align: center;
+      border-radius: 8px 8px 0 0;
+    }
+    .header h1 { margin: 0; font-size: 24px; }
+    .content {
+      background: #ffffff;
+      padding: 30px 20px;
+      border: 1px solid #e5e7eb;
+      border-top: none;
+    }
+    .info-box {
+      background: #f9fafb;
+      border-left: 4px solid #667eea;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 0 6px 6px 0;
+    }
+    .button {
+      display: inline-block;
+      background: #667eea;
+      color: white !important;
+      padding: 14px 36px;
+      text-decoration: none;
+      border-radius: 6px;
+      margin: 24px 0;
+      font-weight: 600;
+      font-size: 16px;
+    }
+    .footer {
+      text-align: center;
+      padding: 20px;
+      color: #6b7280;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Hai salvato la tua registrazione</h1>
+  </div>
+
+  <div class="content">
+    <p>Ciao <strong>${params.firstName}</strong>,</p>
+
+    <p>
+      Hai messo in pausa la registrazione di <strong>${params.businessName}</strong> su artpay.
+      Nessun problema — il tuo progresso è stato salvato e puoi riprendere quando vuoi.
+    </p>
+
+    <div class="info-box">
+      <strong>Prossimo step da completare:</strong><br/>
+      ${nextStep}
+    </div>
+
+    <p>Clicca il pulsante qui sotto per riprendere esattamente da dove hai lasciato:</p>
+
+    <div style="text-align: center;">
+      <a href="${params.resumeUrl}" class="button">Riprendi la registrazione →</a>
+    </div>
+
+    <p style="color: #6b7280; font-size: 14px;">
+      Oppure vai su <a href="${params.resumeUrl}">${params.resumeUrl}</a> e inserisci la tua email.
+    </p>
+
+    <div class="info-box" style="border-left-color: #f59e0b; background: #fffbeb;">
+      <strong style="color: #92400e;">Hai bisogno di aiuto?</strong><br/>
+      Scrivici a <a href="mailto:${process.env.ADMIN_EMAIL || 'support@artpay.art'}">${process.env.ADMIN_EMAIL || 'support@artpay.art'}</a>
+    </div>
+
+    <p>
+      A presto,<br/>
+      <strong>Il Team artpay</strong>
+    </p>
+  </div>
+
+  <div class="footer">
+    <p>&copy; ${new Date().getFullYear()} artpay. Tutti i diritti riservati.</p>
+  </div>
+</body>
+</html>
+  `;
+
+  const text = `
+Ciao ${params.firstName},
+
+Hai messo in pausa la registrazione di ${params.businessName} su artpay.
+Il tuo progresso è stato salvato — puoi riprendere quando vuoi.
+
+Prossimo step: ${nextStep}
+
+Riprendi la registrazione: ${params.resumeUrl}
+
+Hai bisogno di aiuto? Scrivici a ${process.env.ADMIN_EMAIL || 'support@artpay.art'}
+
+A presto,
+Il Team artpay
+  `;
+
+  return { subject, html, text };
+}
+
+/**
+ * Invia email "salva per dopo"
+ */
+export async function sendSaveForLaterEmail(params: {
+  email: string;
+  firstName: string;
+  businessName: string;
+  currentStep: string;
+}): Promise<void> {
+  const resumeUrl = `${process.env.NEXT_PUBLIC_APP_URL}/riprendi`;
+
+  const template = getSaveForLaterEmailTemplate({
+    firstName: params.firstName,
+    businessName: params.businessName,
+    resumeUrl,
+    currentStep: params.currentStep,
+  });
+
+  await sendEmail({
+    to: params.email,
+    subject: template.subject,
+    html: template.html,
+    text: template.text,
+  });
+}
+
+/**
  * Invia email di conferma completamento onboarding
  */
 export async function sendOnboardingCompletionEmail(params: {
