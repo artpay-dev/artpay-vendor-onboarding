@@ -182,12 +182,13 @@ export function getOnboardingCompletionEmailTemplate(params: {
 
     <h3>💰 Informazioni Pagamenti:</h3>
     <p>
-      I pagamenti delle vendite verranno accreditati automaticamente sul tuo conto Stripe
-      con cadenza settimanale, al netto delle commissioni concordate:
+      I pagamenti delle vendite verranno accreditati automaticamente sul tuo conto Stripe,
+      al netto delle commissioni concordate:
     </p>
     <ul>
-      <li><strong>Primi 6 mesi:</strong> 6% di commissione</li>
-      <li><strong>Dopo 6 mesi:</strong> 12% di commissione</li>
+      <li><strong>Primi 12 mesi:</strong> 6% di commissione</li>
+      <li><strong>Dal 13° mese:</strong> 9% di commissione</li>
+      <li><strong>Canone mensile:</strong> €29,00 + IVA (dal 4° mese, solo con conferma esplicita)</li>
     </ul>
 
     <div class="info-box">
@@ -243,10 +244,11 @@ PROSSIMI PASSI:
 Vai alla Dashboard: ${params.dashboardUrl}
 
 INFORMAZIONI PAGAMENTI:
-I pagamenti delle vendite verranno accreditati automaticamente sul tuo conto Stripe
-con cadenza settimanale, al netto delle commissioni concordate:
-- Primi 6 mesi: 6% di commissione
-- Dopo 6 mesi: 12% di commissione
+I pagamenti delle vendite verranno accreditati automaticamente sul tuo conto Stripe,
+al netto delle commissioni concordate:
+- Primi 12 mesi: 6% di commissione
+- Dal 13° mese: 9% di commissione
+- Canone mensile: €29,00 + IVA (dal 4° mese, solo con conferma esplicita)
 
 Hai bisogno di aiuto? Contattaci a ${process.env.ADMIN_EMAIL || 'support@artpay.art'}
 

@@ -118,39 +118,87 @@ export default function ContractPage() {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="prose prose-sm max-w-none">
-            <h3 className="text-lg font-semibold">Cosa succede ora?</h3>
-            <p>
-              Prima di procedere con l'onboarding, è necessario firmare il contratto vendor che stabilisce i termini e
-              le condizioni della collaborazione con artpay.
-            </p>
+        <CardContent className="space-y-5">
 
-            <h4 className="text-base font-semibold mt-4">Il contratto include:</h4>
-            <ul className="list-disc pl-5 space-y-1">
-              <li>Termini e condizioni di vendita</li>
-              <li>Commissioni e metodi di pagamento</li>
-              <li>Politiche di reso e rimborso</li>
-              <li>Diritti e responsabilità delle parti</li>
-            </ul>
+          <p className="text-sm text-muted-foreground">
+            Prima di procedere, leggi e firma il contratto di collaborazione con artpay.
+            Riassumiamo qui i punti principali.
+          </p>
 
-            <h4 className="text-base font-semibold mt-4">Come funziona?</h4>
-            <ol className="list-decimal pl-5 space-y-1">
-              <li>Cliccando sul pulsante qui sotto, riceverai un'email con il link al contratto</li>
-              <li>Potrai revisionare il contratto su DocuSign</li>
-              <li>Firma elettronicamente il documento</li>
-              <li>Tornerai automaticamente qui per procedere con l'approvazione</li>
+          {/* Piano e costi */}
+          <div className="border rounded-lg overflow-hidden">
+            <div className="bg-muted px-4 py-3">
+              <p className="font-semibold text-sm">Piano e costi</p>
+            </div>
+            <div className="divide-y">
+              <div className="flex items-center justify-between px-4 py-3">
+                <span className="text-sm">Periodo gratuito</span>
+                <span className="font-semibold text-green-600">3 mesi gratis</span>
+              </div>
+              <div className="flex items-center justify-between px-4 py-3">
+                <span className="text-sm">Canone mensile (dal 4° mese)</span>
+                <span className="font-semibold">€29,00 + IVA</span>
+              </div>
+              <div className="flex items-center justify-between px-4 py-3">
+                <span className="text-sm">Commissione primi 12 mesi</span>
+                <span className="font-semibold text-primary">6%</span>
+              </div>
+              <div className="flex items-center justify-between px-4 py-3">
+                <span className="text-sm">Commissione dal 13° mese</span>
+                <span className="font-semibold text-primary">9%</span>
+              </div>
+              <div className="flex items-center justify-between px-4 py-3">
+                <span className="text-sm">Opere gestibili</span>
+                <span className="font-semibold">Max 100</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Altri termini chiave */}
+          <div className="border rounded-lg overflow-hidden">
+            <div className="bg-muted px-4 py-3">
+              <p className="font-semibold text-sm">Altri termini</p>
+            </div>
+            <div className="divide-y">
+              <div className="flex items-start justify-between px-4 py-3 gap-4">
+                <span className="text-sm shrink-0">Durata</span>
+                <span className="text-sm text-right text-muted-foreground">Annuale con rinnovo automatico — disdetta almeno 60 giorni prima della scadenza</span>
+              </div>
+              <div className="flex items-start justify-between px-4 py-3 gap-4">
+                <span className="text-sm shrink-0">Passaggio a pagamento</span>
+                <span className="text-sm text-right text-muted-foreground">Non automatico — richiede conferma esplicita al termine del 3° mese</span>
+              </div>
+              <div className="flex items-start justify-between px-4 py-3 gap-4">
+                <span className="text-sm shrink-0">Autenticità opere</span>
+                <span className="text-sm text-right text-muted-foreground">La galleria garantisce autenticità e legittima provenienza di ogni opera</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Come funziona la firma */}
+          <div className="space-y-2">
+            <p className="text-sm font-medium">Come funziona la firma</p>
+            <ol className="space-y-2">
+              {[
+                'Clicca "Firma il Contratto" per aprire DocuSign',
+                "Leggi il documento completo e firma elettronicamente",
+                "Torni qui automaticamente per proseguire",
+              ].map((step, i) => (
+                <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground">
+                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary text-xs font-semibold flex items-center justify-center mt-0.5">
+                    {i + 1}
+                  </span>
+                  {step}
+                </li>
+              ))}
             </ol>
           </div>
 
-          <div className="bg-muted/50 p-4 rounded-lg">
-            <p className="text-sm text-muted-foreground">
-              <strong>Nota:</strong> La firma elettronica via DocuSign ha lo stesso valore legale di una firma
-              autografa secondo la normativa vigente.
-            </p>
-          </div>
+          <p className="text-xs text-muted-foreground">
+            La firma elettronica via DocuSign ha lo stesso valore legale di una firma autografa secondo la normativa vigente.
+          </p>
 
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-3 pt-2">
             <Button onClick={handleSaveForLater} variant="outline" className="flex-1">
               Salva per dopo
             </Button>
