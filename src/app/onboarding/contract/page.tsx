@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { FileText, Loader2 } from "lucide-react";
+import { FileText, Loader2, CheckCircle2 } from "lucide-react";
 
 export default function ContractPage() {
   const [isLoading, setIsLoading] = useState(true);
@@ -75,7 +75,6 @@ export default function ContractPage() {
       });
 
       console.log("response", response);
-
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error?.message || "Errore durante la generazione del contratto");
@@ -131,24 +130,29 @@ export default function ContractPage() {
               <p className="font-semibold text-sm">Piano e costi</p>
             </div>
             <div className="divide-y">
-              <div className="flex items-center justify-between px-4 py-3">
-                <span className="text-sm">Periodo gratuito</span>
+              <div className="flex items-center gap-3 px-4 py-3">
+                <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
+                <span className="text-sm flex-1">Periodo gratuito</span>
                 <span className="font-semibold text-green-600">3 mesi gratis</span>
               </div>
-              <div className="flex items-center justify-between px-4 py-3">
-                <span className="text-sm">Canone mensile (dal 4° mese)</span>
+              <div className="flex items-center gap-3 px-4 py-3">
+                <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                <span className="text-sm flex-1">Canone mensile (dal 4° mese)</span>
                 <span className="font-semibold">€29,00 + IVA</span>
               </div>
-              <div className="flex items-center justify-between px-4 py-3">
-                <span className="text-sm">Commissione primi 12 mesi</span>
+              <div className="flex items-center gap-3 px-4 py-3">
+                <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                <span className="text-sm flex-1">Commissione primi 12 mesi</span>
                 <span className="font-semibold text-primary">6%</span>
               </div>
-              <div className="flex items-center justify-between px-4 py-3">
-                <span className="text-sm">Commissione dal 13° mese</span>
+              <div className="flex items-center gap-3 px-4 py-3">
+                <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                <span className="text-sm flex-1">Commissione dal 13° mese</span>
                 <span className="font-semibold text-primary">9%</span>
               </div>
-              <div className="flex items-center justify-between px-4 py-3">
-                <span className="text-sm">Opere gestibili</span>
+              <div className="flex items-center gap-3 px-4 py-3">
+                <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                <span className="text-sm flex-1">Opere gestibili</span>
                 <span className="font-semibold">Max 100</span>
               </div>
             </div>
@@ -160,17 +164,20 @@ export default function ContractPage() {
               <p className="font-semibold text-sm">Altri termini</p>
             </div>
             <div className="divide-y">
-              <div className="flex items-start justify-between px-4 py-3 gap-4">
-                <span className="text-sm shrink-0">Durata</span>
-                <span className="text-sm text-right text-muted-foreground">Annuale con rinnovo automatico — disdetta almeno 60 giorni prima della scadenza</span>
+              <div className="flex items-start gap-3 px-4 py-3">
+                <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                <span className="text-sm shrink-0 font-medium">Durata</span>
+                <span className="text-sm text-right text-muted-foreground ml-auto">Annuale con rinnovo automatico. Disdetta almeno 60 giorni prima della scadenza</span>
               </div>
-              <div className="flex items-start justify-between px-4 py-3 gap-4">
-                <span className="text-sm shrink-0">Passaggio a pagamento</span>
-                <span className="text-sm text-right text-muted-foreground">Non automatico — richiede conferma esplicita al termine del 3° mese</span>
+              <div className="flex items-start gap-3 px-4 py-3">
+                <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                <span className="text-sm shrink-0 font-medium">Abbonamento mensile</span>
+                <span className="text-sm text-right text-primary ml-auto">Non automatico. Richiede conferma esplicita al termine del 3° mese</span>
               </div>
-              <div className="flex items-start justify-between px-4 py-3 gap-4">
-                <span className="text-sm shrink-0">Autenticità opere</span>
-                <span className="text-sm text-right text-muted-foreground">La galleria garantisce autenticità e legittima provenienza di ogni opera</span>
+              <div className="flex items-start gap-3 px-4 py-3">
+                <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                <span className="text-sm shrink-0 font-medium">Autenticità opere</span>
+                <span className="text-sm text-right text-muted-foreground ml-auto">La galleria garantisce autenticità e legittima provenienza di ogni opera</span>
               </div>
             </div>
           </div>
