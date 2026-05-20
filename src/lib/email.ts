@@ -344,7 +344,7 @@ export function getSaveForLaterEmailTemplate(params: {
       Nessun problema — il tuo progresso è stato salvato e puoi riprendere quando vuoi.
     </p>
 
-    <p>Clicca il pulsante qui sotto per riprendere esattamente da dove hai lasciato:</p>
+    <p>Clicca il pulsante qui sotto per riprendere esattamente da dove hai lasciato, inserendo l'email con cui ti sei registrato.</p>
 
     <div style="text-align: center;">
       <a href="${params.resumeUrl}" class="button">Riprendi la registrazione →</a>
@@ -356,7 +356,7 @@ export function getSaveForLaterEmailTemplate(params: {
 
     <div class="info-box" style="border-left-color: #f59e0b; background: #fffbeb;">
       <strong style="color: #92400e;">Hai bisogno di aiuto?</strong><br/>
-      Scrivici a <a href="mailto:${process.env.ADMIN_EMAIL || 'support@artpay.art'}">${process.env.ADMIN_EMAIL || 'support@artpay.art'}</a>
+      Scrivici a <a href="mailto:${process.env.ADMIN_EMAIL || 'hello@artpay.art'}">${process.env.ADMIN_EMAIL || 'hello@artpay.art'}</a>
     </div>
 
     <p>
