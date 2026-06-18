@@ -1,11 +1,4 @@
-/**
- * Email Service
- * Gestisce l'invio di email tramite provider configurato (Resend, SendGrid, etc.)
- */
-
-const BREVO_API_KEY = process.env.BREVO_API_KEY;
-const EMAIL_FROM_NAME = process.env.EMAIL_FROM_NAME || 'Team artpay';
-const EMAIL_FROM = process.env.EMAIL_FROM || 'hello@artpay.art';
+const WP_EMAIL_SECRET = process.env.WP_EMAIL_SECRET;
 
 interface SendEmailParams {
   to: string;
@@ -14,41 +7,40 @@ interface SendEmailParams {
   text?: string;
 }
 
-async function sendEmailWithBrevo(params: SendEmailParams): Promise<void> {
-  if (!BREVO_API_KEY) {
-    throw new Error('Missing BREVO_API_KEY');
-  }
+async function sendEmailWithWpMail(params: SendEmailParams): Promise<void> {
+  const wpApiUrl = process.env.NEXT_PUBLIC_ARTPAY_SERVER_URL;
 
-  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+  if (!wpApiUrl) throw new Error('Missing NEXT_PUBLIC_ARTPAY_SERVER_URL');
+  if (!WP_EMAIL_SECRET) throw new Error('Missing WP_EMAIL_SECRET');
+
+  const response = await fetch(`${wpApiUrl}/wp-json/artpay/v1/send-email`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'api-key': BREVO_API_KEY,
+      'X-Artpay-Secret': WP_EMAIL_SECRET,
     },
     body: JSON.stringify({
-      sender: { name: EMAIL_FROM_NAME, email: EMAIL_FROM },
-      to: [{ email: params.to }],
+      to: params.to,
       subject: params.subject,
-      htmlContent: params.html,
-      textContent: params.text,
+      html: params.html,
+      text: params.text,
     }),
   });
 
   if (!response.ok) {
     const error = await response.json().catch(() => null);
-    console.error('Brevo API error:', error);
+    console.error('wp_mail API error:', error);
     throw new Error(`Failed to send email: ${error?.message || response.statusText}`);
   }
 
-  const result = await response.json();
-  console.log('Email sent successfully via Brevo:', result.messageId);
+  console.log('Email sent successfully via wp_mail');
 }
 
 export async function sendEmail(params: SendEmailParams): Promise<void> {
-  console.log(`Sending email to ${params.to} via Brevo`);
+  console.log(`Sending email to ${params.to} via wp_mail`);
 
   try {
-    await sendEmailWithBrevo(params);
+    await sendEmailWithWpMail(params);
   } catch (error) {
     console.error('Failed to send email:', error);
     throw error;
