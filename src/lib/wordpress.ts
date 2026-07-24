@@ -119,6 +119,46 @@ export async function createWordPressVendor(
 }
 
 /**
+ * Assegna il vendor_type al vendor WP (es. "artist")
+ */
+export async function setVendorType(
+  wpUserId: number,
+  vendorType: string,
+  credentials: { username: string; password: string }
+): Promise<void> {
+  const wpApiUrl = process.env.NEXT_PUBLIC_ARTPAY_SERVER_URL;
+  if (!wpApiUrl) {
+    console.error('setVendorType: missing NEXT_PUBLIC_ARTPAY_SERVER_URL');
+    return;
+  }
+
+  const basicAuth = Buffer.from(`${credentials.username}:${credentials.password}`).toString('base64');
+
+  try {
+    const response = await fetch(
+      `${wpApiUrl}/wp-json/artpay/v1/onboarding/${wpUserId}/vendor-type`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Basic ${basicAuth}`,
+        },
+        body: JSON.stringify({ vendor_type: vendorType }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      console.error(`setVendorType FAILED for WP user ${wpUserId}: HTTP ${response.status}`, errorData);
+    } else {
+      console.log(`Vendor type "${vendorType}" set for WP user ${wpUserId}`);
+    }
+  } catch (error) {
+    console.error(`setVendorType EXCEPTION for WP user ${wpUserId}:`, error);
+  }
+}
+
+/**
  * Aggiorna il payment mode del vendor su WordPress a stripe_masspay
  */
 export async function updateVendorStripeAccount(

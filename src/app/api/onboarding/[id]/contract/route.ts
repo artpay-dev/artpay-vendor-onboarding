@@ -6,7 +6,7 @@
 import { NextRequest } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/server';
 import { apiSuccess, apiError, getSessionToken } from '@/lib/api-utils';
-import { createVendorContractEnvelope, getEmbeddedSigningUrl } from '@/lib/docusign';
+import { createVendorContractEnvelope, createArtistContractEnvelope, getEmbeddedSigningUrl } from '@/lib/docusign';
 import type { GetContractLinkResponse } from '@/types/supabase';
 
 // Force Node.js runtime (docusign-esign non funziona con Edge)
@@ -83,19 +83,36 @@ export async function POST(
     }
 
     const meta = onboardingData.metadata || {};
+    const isArtist = meta.flow_type === 'artist';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
+    const pendingApprovalPath = isArtist ? '/artista/pending-approval' : '/onboarding/pending-approval';
 
-    // Crea nuovo envelope DocuSign
-    const { envelopeId } = await createVendorContractEnvelope({
-      signerEmail: onboardingData.email,
-      signerName: `${onboardingData.first_name} ${onboardingData.last_name}`,
-      businessName: onboardingData.business_name,
-      ragioneSociale: meta.ragione_sociale || onboardingData.business_name,
-      partitaIva: meta.partita_iva || '',
-      indirizzo: meta.indirizzo || '',
-      iban: meta.iban || '',
-      onboardingId: id,
-      returnUrl: `${process.env.NEXT_PUBLIC_APP_URL}/onboarding/pending-approval?from=docusign`,
-    });
+    // Crea nuovo envelope DocuSign (template diverso per artisti)
+    let envelopeId: string;
+    if (isArtist) {
+      ({ envelopeId } = await createArtistContractEnvelope({
+        signerEmail: onboardingData.email,
+        signerName: `${onboardingData.first_name} ${onboardingData.last_name}`,
+        businessName: onboardingData.business_name,
+        indirizzo: meta.indirizzo || '',
+        subscriptionPlan: (meta.subscription_plan as 'monthly' | 'annual') || 'monthly',
+        subscriptionPlanAmount: meta.subscription_plan_amount as number | undefined,
+        onboardingId: id,
+        returnUrl: `${baseUrl}${pendingApprovalPath}?from=docusign`,
+      }));
+    } else {
+      ({ envelopeId } = await createVendorContractEnvelope({
+        signerEmail: onboardingData.email,
+        signerName: `${onboardingData.first_name} ${onboardingData.last_name}`,
+        businessName: onboardingData.business_name,
+        ragioneSociale: meta.ragione_sociale || onboardingData.business_name,
+        partitaIva: meta.partita_iva || '',
+        indirizzo: meta.indirizzo || '',
+        iban: meta.iban || '',
+        onboardingId: id,
+        returnUrl: `${baseUrl}${pendingApprovalPath}?from=docusign`,
+      }));
+    }
 
     // Ottieni URL per firma embedded
     const signingUrl = await getEmbeddedSigningUrl({
@@ -103,7 +120,7 @@ export async function POST(
       signerEmail: onboardingData.email,
       signerName: `${onboardingData.first_name} ${onboardingData.last_name}`,
       onboardingId: id,
-      returnUrl: `${process.env.NEXT_PUBLIC_APP_URL}/onboarding/pending-approval?from=docusign&onboarding_id=${id}`,
+      returnUrl: `${baseUrl}${pendingApprovalPath}?from=docusign&onboarding_id=${id}`,
     });
 
     // Aggiorna onboarding con envelope ID

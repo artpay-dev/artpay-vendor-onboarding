@@ -8,7 +8,7 @@ import { NextRequest } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/server';
 import { apiSuccess, apiError, getSessionToken } from '@/lib/api-utils';
 import { getEnvelopeStatus } from '@/lib/docusign';
-import { createWordPressVendor } from '@/lib/wordpress';
+import { createWordPressVendor, setVendorType } from '@/lib/wordpress';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -117,6 +117,15 @@ export async function POST(
     });
 
     console.log(`WordPress vendor created via sync:`, wpVendor);
+
+    // Assegna vendor_type se artista
+    const flowType = onboarding.metadata?.flow_type;
+    if (flowType === 'artist') {
+      await setVendorType(wpVendor.wpUserId, 'artist', {
+        username: wpVendor.wpUsername,
+        password: onboarding.temp_password,
+      });
+    }
 
     const { error: updateError } = await (supabaseAdmin.from('vendor_onboardings') as any)
       .update({

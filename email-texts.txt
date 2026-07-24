@@ -1,0 +1,67 @@
+================================================================================
+EMAIL 1: SALVA PER DOPO
+Oggetto: Riprendi la tua registrazione su artpay
+Trigger: POST /api/onboarding/[id]/save-for-later
+================================================================================
+
+Ciao {firstName},
+
+Hai messo in pausa la registrazione di {businessName} su artpay.
+Il tuo progresso è stato salvato — puoi riprendere quando vuoi.
+
+Riprendi la registrazione: {NEXT_PUBLIC_APP_URL}/riprendi
+
+Hai bisogno di aiuto? Scrivici a {ADMIN_EMAIL || hello@artpay.art}
+
+A presto,
+Il Team artpay
+
+
+================================================================================
+EMAIL 2: COMPLETAMENTO ONBOARDING
+Oggetto: Benvenuto su artpay, {businessName}!
+Trigger: GET /api/stripe/connect/return (callback Stripe Connect)
+================================================================================
+
+Benvenuto su artpay, {businessName}!
+
+Ciao {firstName} {lastName},
+
+Fantastico! Il tuo onboarding su artpay è stato completato con successo.
+Ora puoi iniziare a vendere le tue opere d'arte sulla nostra piattaforma!
+
+RIEPILOGO ACCOUNT:
+- Business Name: {businessName}
+- Pagamenti: Stripe Connect ✓
+
+CREDENZIALI DI ACCESSO DASHBOARD:
+- Email: {email}
+- Password: {wpPassword}
+(Conserva queste credenziali in un luogo sicuro)
+
+PROSSIMI PASSI:
+1. Accedi alla Dashboard - Gestisci i tuoi prodotti e ordini
+2. Aggiungi le tue opere - Carica foto professionali e descrizioni dettagliate
+3. Configura la spedizione - Imposta le zone e i costi di spedizione
+4. Inizia a vendere! - Le tue opere saranno visibili ai clienti
+
+Vai alla Dashboard: {NEXT_PUBLIC_DASHBOARD_URL || https://dashboard.artpay.art/login}
+
+INFORMAZIONI PAGAMENTI:
+I pagamenti delle vendite verranno accreditati automaticamente sul tuo conto Stripe,
+al netto delle commissioni concordate:
+- Primi 12 mesi: 6% di commissione
+- Dal 13° mese: 9% di commissione
+- Canone mensile: €29,00 + IVA (dal 4° mese, solo con conferma esplicita)
+
+Hai bisogno di aiuto? Contattaci a {ADMIN_EMAIL || support@artpay.art}
+
+Grazie per aver scelto artpay come piattaforma per vendere le tue opere.
+Siamo entusiasti di averti con noi!
+
+Un caro saluto,
+Il Team artpay
+
+---
+Questa è un'email automatica.
+© 2026 artpay. Tutti i diritti riservati.
