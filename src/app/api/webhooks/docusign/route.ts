@@ -7,7 +7,7 @@ import { NextRequest } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/server';
 import { apiSuccess, apiError } from '@/lib/api-utils';
 import { downloadSignedContract } from '@/lib/docusign';
-import { createWordPressVendor } from '@/lib/wordpress';
+import { createWordPressVendor, setVendorType } from '@/lib/wordpress';
 
 export async function POST(request: NextRequest) {
   try {
@@ -96,6 +96,15 @@ export async function POST(request: NextRequest) {
         });
 
         console.log(`WordPress vendor created successfully:`, wpVendor);
+
+        // 3b. Assegna vendor_type se artista
+        const flowType = onboarding.metadata?.flow_type;
+        if (flowType === 'artist') {
+          await setVendorType(wpVendor.wpUserId, 'artist', {
+            username: wpVendor.wpUsername,
+            password: onboarding.temp_password,
+          });
+        }
 
         // 4. Aggiorna onboarding con dati WordPress e cancella password temporanea
         console.log(`Updating onboarding ${onboarding.id} to vendor_created...`);

@@ -1,3 +1,23 @@
+function getArtistNextStep(status: string, meta: Record<string, unknown>): string {
+  const subscriptionPaid = !!meta.subscription_paid;
+  switch (status) {
+    case 'draft':
+      return subscriptionPaid ? '/artista/contratto' : '/artista/abbonamento';
+    case 'contract_pending':
+      return '/artista/contratto';
+    case 'contract_signed':
+      return '/artista/pending-approval';
+    case 'vendor_created':
+    case 'stripe_pending':
+      return '/artista/stripe-connect';
+    case 'stripe_connected':
+    case 'completed':
+      return '/artista/completato';
+    default:
+      return '/artista';
+  }
+}
+
 /**
  * GET /api/onboarding/resume?email={email}
  * Verifica se esiste un onboarding incompleto per un email
@@ -90,10 +110,27 @@ export async function POST(request: NextRequest) {
       .update({ session_expires_at: newExpiry })
       .eq('id', existing.id);
 
+    // Per gli artisti serve la metadata per determinare il prossimo step corretto
+    const { data: fullOnboarding } = await supabaseAdmin
+      .from('vendor_onboardings')
+      .select('metadata')
+      .eq('id', existing.id)
+      .single();
+
+    const meta = (fullOnboarding as any)?.metadata || {};
+    const isArtist = meta.flow_type === 'artist';
+
+    let resumeUrl: string | null;
+    if (isArtist) {
+      resumeUrl = getArtistNextStep(existing.status, meta);
+    } else {
+      resumeUrl = getNextStepFromStatus(existing.status);
+    }
+
     return apiSuccess({
       onboarding_id: existing.id,
       session_token: existing.session_token,
-      resume_url: getNextStepFromStatus(existing.status),
+      resume_url: resumeUrl,
     });
   } catch (error) {
     console.error('Unexpected error in POST /api/onboarding/resume:', error);

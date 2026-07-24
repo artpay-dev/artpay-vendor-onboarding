@@ -35,18 +35,13 @@ export async function POST(request: NextRequest) {
     // Parse body
     const body = await request.json().catch(() => null);
 
+    const isArtistFlow = (body as any)?.flow_type === 'artist';
+    const requiredFields = isArtistFlow
+      ? ['email', 'password', 'first_name', 'last_name', 'business_name']
+      : ['email', 'password', 'first_name', 'last_name', 'business_name', 'ragione_sociale', 'partita_iva', 'indirizzo', 'iban'];
+
     // Valida campi richiesti
-    const validation = validateRequiredFields<StartOnboardingRequest | any>(body, [
-      'email',
-      'password',
-      'first_name',
-      'last_name',
-      'business_name',
-      'ragione_sociale',
-      'partita_iva',
-      'indirizzo',
-      'iban',
-    ]);
+    const validation = validateRequiredFields<StartOnboardingRequest | any>(body, requiredFields);
 
     if (!validation.valid) {
       return apiError('Missing required fields', 400, {
@@ -64,7 +59,10 @@ export async function POST(request: NextRequest) {
       partita_iva,
       indirizzo,
       iban,
-    } = body as StartOnboardingRequest;
+      flow_type = 'vendor',
+      subscription_plan,
+      subscription_plan_amount,
+    } = body as StartOnboardingRequest & { flow_type?: string; subscription_plan?: string; subscription_plan_amount?: number };
 
     // Valida email
     const normalizedEmail = normalizeEmail(email);
@@ -132,10 +130,13 @@ export async function POST(request: NextRequest) {
         session_token: sessionToken,
         session_expires_at: sessionExpiresAt.toISOString(),
         metadata: {
-          ragione_sociale: ragione_sociale.trim(),
-          partita_iva: partita_iva.trim().replace(/\s/g, '').toUpperCase(),
-          indirizzo: indirizzo.trim(),
-          iban: iban.trim().replace(/\s/g, '').toUpperCase(),
+          ragione_sociale: ragione_sociale?.trim() || '',
+          partita_iva: partita_iva?.trim().replace(/\s/g, '').toUpperCase() || '',
+          indirizzo: indirizzo?.trim() || '',
+          iban: iban?.trim().replace(/\s/g, '').toUpperCase() || '',
+          flow_type,
+          ...(subscription_plan ? { subscription_plan } : {}),
+          ...(subscription_plan_amount ? { subscription_plan_amount } : {}),
         },
       })
       .select()
@@ -161,12 +162,13 @@ export async function POST(request: NextRequest) {
     });
 
     // Prepara response
+    const isArtist = flow_type === 'artist';
     const response: StartOnboardingResponse = {
       onboarding_id: onboarding.id,
       session_token: sessionToken,
       status: 'draft',
       next_step: 'contract',
-      next_url: '/onboarding/contract',
+      next_url: isArtist ? '/artista/abbonamento' : '/onboarding/contract',
     };
 
     return apiSuccess(response, 201);
