@@ -43,11 +43,19 @@ export async function GET(request: NextRequest) {
     }
 
     const existing = incompleteOnboarding[0];
+
+    const { data: fullRecord } = await (supabaseAdmin
+      .from('vendor_onboardings') as any)
+      .select('metadata')
+      .eq('id', existing.id)
+      .single();
+    const skipContract = (fullRecord?.metadata as any)?.skip_contract === true;
+
     const response: ResumeOnboardingResponse = {
       has_incomplete_onboarding: true,
       onboarding_id: existing.id,
       current_status: existing.status,
-      resume_url: getNextStepFromStatus(existing.status),
+      resume_url: getNextStepFromStatus(existing.status, skipContract),
     };
 
     return apiSuccess(response);
@@ -84,6 +92,13 @@ export async function POST(request: NextRequest) {
 
     const existing = incompleteOnboarding[0];
 
+    const { data: fullRecordPost } = await (supabaseAdmin
+      .from('vendor_onboardings') as any)
+      .select('metadata')
+      .eq('id', existing.id)
+      .single();
+    const skipContractPost = (fullRecordPost?.metadata as any)?.skip_contract === true;
+
     // Rinnova session_expires_at nel DB così validate_session_token non fallisce
     const newExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
     await (supabaseAdmin.from('vendor_onboardings') as any)
@@ -93,7 +108,7 @@ export async function POST(request: NextRequest) {
     return apiSuccess({
       onboarding_id: existing.id,
       session_token: existing.session_token,
-      resume_url: getNextStepFromStatus(existing.status),
+      resume_url: getNextStepFromStatus(existing.status, skipContractPost),
     });
   } catch (error) {
     console.error('Unexpected error in POST /api/onboarding/resume:', error);

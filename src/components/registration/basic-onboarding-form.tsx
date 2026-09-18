@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import type { StartOnboardingResponse } from "@/types/supabase";
 
-export function BasicOnboardingForm() {
+export function BasicOnboardingForm({ skipContract = false }: { skipContract?: boolean }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
@@ -40,7 +40,7 @@ export function BasicOnboardingForm() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, ...(skipContract ? { skip_contract: true } : {}) }),
       });
 
       const result = await response.json();
@@ -78,7 +78,9 @@ export function BasicOnboardingForm() {
       sessionStorage.setItem("onboarding_id", onboardingData.onboarding_id);
 
       toast.success("Registrazione completata!", {
-        description: "Procediamo con la firma del contratto...",
+        description: skipContract
+          ? "Stiamo configurando il tuo account..."
+          : "Procediamo con la firma del contratto...",
       });
 
       // Redirect al prossimo step

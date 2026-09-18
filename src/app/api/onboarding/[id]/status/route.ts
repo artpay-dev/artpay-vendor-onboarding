@@ -84,13 +84,15 @@ export async function GET(
 
     const canProceedResult = canProceed && canProceed.length > 0 ? canProceed[0] : null;
 
+    const skipContract = onboarding.metadata?.skip_contract === true;
+
     // Prepara response
     const response: GetOnboardingStatusResponse = {
       onboarding_id: onboarding.id,
       status: onboarding.status,
       current_step: onboarding.last_step_completed || 'registration',
       can_proceed: canProceedResult?.can_proceed || false,
-      next_url: getNextStepFromStatus(onboarding.status),
+      next_url: getNextStepFromStatus(onboarding.status, skipContract),
       completed_steps: completedSteps,
       pending_steps: pendingSteps,
       data: {
@@ -104,6 +106,7 @@ export async function GET(
         stripe_payouts_enabled: onboarding.stripe_payouts_enabled,
         created_at: onboarding.created_at,
         updated_at: onboarding.updated_at,
+        metadata: onboarding.metadata,
       },
     };
 

@@ -64,7 +64,8 @@ export async function POST(request: NextRequest) {
       partita_iva,
       indirizzo,
       iban,
-    } = body as StartOnboardingRequest;
+      skip_contract,
+    } = body as StartOnboardingRequest & { skip_contract?: boolean };
 
     // Valida email
     const normalizedEmail = normalizeEmail(email);
@@ -136,6 +137,7 @@ export async function POST(request: NextRequest) {
           partita_iva: partita_iva.trim().replace(/\s/g, '').toUpperCase(),
           indirizzo: indirizzo.trim(),
           iban: iban.trim().replace(/\s/g, '').toUpperCase(),
+          ...(skip_contract ? { skip_contract: true } : {}),
         },
       })
       .select()
@@ -165,8 +167,8 @@ export async function POST(request: NextRequest) {
       onboarding_id: onboarding.id,
       session_token: sessionToken,
       status: 'draft',
-      next_step: 'contract',
-      next_url: '/onboarding/contract',
+      next_step: skip_contract ? 'approval' : 'contract',
+      next_url: skip_contract ? '/onboarding/pending-approval' : '/onboarding/contract',
     };
 
     return apiSuccess(response, 201);

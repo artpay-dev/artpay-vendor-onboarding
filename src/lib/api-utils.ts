@@ -111,7 +111,10 @@ export function validateRequiredFields<T extends Record<string, unknown>>(
 /**
  * Mappa status onboarding a prossimo step
  */
-export function getNextStepFromStatus(status: OnboardingStatus): string | null {
+export function getNextStepFromStatus(status: OnboardingStatus, skipContract = false): string | null {
+  if (skipContract && status === 'draft') {
+    return '/onboarding/pending-approval';
+  }
   const stepMap: Record<OnboardingStatus, string | null> = {
     draft: '/onboarding/contract',
     contract_pending: '/onboarding/contract',

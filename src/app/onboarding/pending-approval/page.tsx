@@ -30,16 +30,16 @@ function StatusMessage({ seconds }: { seconds: number }) {
 }
 
 // Checklist tecnica degli step reali
-function ChecklistItems({ seconds }: { seconds: number }) {
+function ChecklistItems({ seconds, skipContract }: { seconds: number; skipContract: boolean }) {
   const [items, setItems] = useState<Array<{ completed: boolean; text: string; isActive: boolean }>>([]);
 
   useEffect(() => {
     const newItems = [
-      {
-        completed: true, // Sempre completato (contratto già firmato)
+      ...(!skipContract ? [{
+        completed: true,
         text: "Contratto firmato e archiviato",
         isActive: false,
-      },
+      }] : []),
       {
         completed: seconds >= 12,
         text: "Creazione del tuo spazio personale",
@@ -87,8 +87,9 @@ function PendingApprovalPageContent() {
   const [isChecking, setIsChecking] = useState(false);
   const [onboardingStatus, setOnboardingStatus] = useState<GetOnboardingStatusResponse | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [skipContract, setSkipContract] = useState(false);
 
-  const fetchStatus = async (showToast = false) => {
+  const fetchStatus = async (showToast = false): Promise<GetOnboardingStatusResponse | null> => {
     const sessionToken = document.cookie
       .split("; ")
       .find((row) => row.startsWith("session_token="))
@@ -112,7 +113,7 @@ function PendingApprovalPageContent() {
       });
       toast.error("Sessione non valida");
       router.push("/");
-      return;
+      return null;
     }
 
     try {
@@ -128,8 +129,10 @@ function PendingApprovalPageContent() {
 
       const result = await response.json();
       const data = result.data as GetOnboardingStatusResponse;
+      const isSkipContract = data.data?.metadata?.skip_contract === true;
 
       setOnboardingStatus(data);
+      setSkipContract(isSkipContract);
 
       // Se lo status è cambiato e può procedere, redirect
       if (data.status === "vendor_created" && data.can_proceed) {
@@ -149,11 +152,38 @@ function PendingApprovalPageContent() {
           description: "La tua richiesta è ancora in fase di revisione",
         });
       }
+
+      return data;
     } catch (error) {
       console.error("Status check error:", error);
       if (showToast) {
         toast.error("Errore durante il controllo dello status");
       }
+      return null;
+    }
+  };
+
+  const activateNoContract = async () => {
+    const sessionToken = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("session_token="))
+      ?.split("=")[1];
+    const onboardingId =
+      searchParams.get("onboarding_id") || sessionStorage.getItem("onboarding_id");
+
+    if (!sessionToken || !onboardingId) return;
+
+    try {
+      const res = await fetch(`/api/onboarding/${onboardingId}/activate`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${sessionToken}` },
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        console.error(`Activate failed (${res.status}):`, body);
+      }
+    } catch (error) {
+      console.error("Activate error:", error);
     }
   };
 
@@ -207,13 +237,17 @@ function PendingApprovalPageContent() {
 
     const fromDocusign = searchParams.get("from") === "docusign";
 
-    // Se torniamo da DocuSign, sincronizza attivamente lo stato prima di iniziare il polling
     const init = async () => {
       if (fromDocusign) {
         await syncContractStatus();
       }
-      await fetchStatus();
+      const statusData = await fetchStatus();
       setIsLoading(false);
+
+      if (statusData?.data?.metadata?.skip_contract === true && statusData?.status === 'draft') {
+        await activateNoContract();
+      }
+
       setTimeout(poll, 2000);
     };
 
@@ -287,12 +321,15 @@ function PendingApprovalPageContent() {
           <div className="prose prose-sm max-w-none">
             <h3 className="text-lg font-semibold">Cosa sta succedendo?</h3>
             <p>
-              Ottimo! Hai firmato il contratto con successo. <br />
+              {skipContract
+                ? "Ottimo! La registrazione è completata. "
+                : "Ottimo! Hai firmato il contratto con successo. "}
+              <br />
               Ora stiamo preparando tutto il necessario per la tua galleria online su artpay.
             </p>
 
             <h4 className="text-base font-semibold mt-4">Stiamo lavorando a:</h4>
-            <ChecklistItems seconds={elapsedSeconds} />
+            <ChecklistItems seconds={elapsedSeconds} skipContract={skipContract} />
           </div>
 
           <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg border border-blue-200 dark:border-blue-900">
