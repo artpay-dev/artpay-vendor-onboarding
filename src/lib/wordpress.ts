@@ -85,12 +85,21 @@ export async function createWordPressVendor(
       body: JSON.stringify(vendorData),
     });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      console.error('WordPress API error:', errorData);
-      throw new Error(
-        errorData?.message || `WordPress API failed with status ${response.status}`
-      );
+    const contentType = response.headers.get('content-type') || '';
+
+    if (!response.ok || !contentType.includes('application/json')) {
+      const rawBody = await response.text();
+      console.error('WordPress API error - status:', response.status, 'content-type:', contentType, 'body (first 500 chars):', rawBody.substring(0, 500));
+
+      if (!contentType.includes('application/json')) {
+        throw new Error(
+          `WordPress API returned non-JSON response (status ${response.status}, content-type: ${contentType}). ` +
+          `URL: ${wpApiUrl}/wp-json/mvx/v1/vendors. Likely a redirect or auth issue.`
+        );
+      }
+
+      const errorData = JSON.parse(rawBody);
+      throw new Error(errorData?.message || `WordPress API failed with status ${response.status}`);
     }
 
     const result = await response.json();
